@@ -1,14 +1,10 @@
 import { useEffect, useState } from "react";
 
-const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL || "https://duemate-backend-31qm.onrender.com"
-).replace(/\/$/, "");
-
 function App() {
   const [health, setHealth] = useState({ status: "loading" });
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/health`)
+    fetch("https://duemate-backend-31qm.onrender.com/health")
       .then((res) => res.json())
       .then((data) => setHealth(data))
       .catch(() => setHealth({ status: "offline" }));
