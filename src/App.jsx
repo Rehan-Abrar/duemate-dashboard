@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://duemate-backend-31qm.onrender.com";
+const ADMIN_API_KEY = import.meta.env.VITE_ADMIN_API_KEY || "";
 const STORAGE_TOKEN_KEY = "duemate.session.token";
 const STORAGE_THEME_KEY = "duemate.theme";
 
@@ -56,6 +57,22 @@ async function apiFetch(path, options = {}, token = "") {
   };
   if (token) {
     headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
+    headers,
+  });
+  return response;
+}
+
+async function adminFetch(path, options = {}) {
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {}),
+  };
+  if (ADMIN_API_KEY) {
+    headers["X-Admin-Key"] = ADMIN_API_KEY;
   }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -600,16 +617,30 @@ function AdminDashboard() {
     let active = true;
     async function load() {
       try {
+        if (!ADMIN_API_KEY) {
+          setDataError("Admin key missing. Set VITE_ADMIN_API_KEY in dashboard environment.");
+          return;
+        }
+
         const [healthRes, messagesRes, deliveryRes, unresolvedRes, coursesRes] = await Promise.all([
           fetch(`${API_BASE_URL}/health`),
-          fetch(`${API_BASE_URL}/api/messages/recent?limit=12`),
-          fetch(`${API_BASE_URL}/api/delivery-status`),
-          fetch(`${API_BASE_URL}/api/tasks?course_unresolved=true&limit=20`),
+          adminFetch(`/api/messages/recent?limit=12`),
+          adminFetch(`/api/delivery-status`),
+          adminFetch(`/api/tasks?course_unresolved=true&limit=20`),
           fetch(`${API_BASE_URL}/api/courses/default`),
         ]);
         if (!active) {
           return;
         }
+
+        if ([messagesRes, deliveryRes, unresolvedRes].some((response) => response.status === 403)) {
+          setDataError("Admin access denied. Check VITE_ADMIN_API_KEY.");
+        } else if ([messagesRes, deliveryRes, unresolvedRes].some((response) => response.status === 503)) {
+          setDataError("Backend admin key not configured (ADMIN_API_KEY/ADMIN_KEY).");
+        } else {
+          setDataError("");
+        }
+
         setHealth(healthRes.ok ? await healthRes.json() : { status: "offline" });
         setMessages(messagesRes.ok ? (await messagesRes.json()).items || [] : []);
         setDelivery(deliveryRes.ok ? await deliveryRes.json() : { summary: [], recent_events: [] });
@@ -637,7 +668,7 @@ function AdminDashboard() {
     }
     setAssigningTaskId(task._id);
     try {
-      const response = await apiFetch(`/api/tasks/${task._id}/assign-course`, {
+      const response = await adminFetch(`/api/tasks/${task._id}/assign-course`, {
         method: "POST",
         body: JSON.stringify({ course_code: draft.course_code, apply_to_source: Boolean(draft.apply_to_source) }),
       });
