@@ -63,7 +63,10 @@ function App() {
 
         if (unresolvedRes.ok) {
           const unresolvedData = await unresolvedRes.json();
-          setUnresolvedTasks(Array.isArray(unresolvedData.items) ? unresolvedData.items : []);
+          const unresolvedItems = Array.isArray(unresolvedData.items)
+            ? unresolvedData.items.filter((item) => item?.course_unresolved === true)
+            : [];
+          setUnresolvedTasks(unresolvedItems);
         } else {
           setUnresolvedTasks([]);
           partialErrors.push("task queue API not available");
