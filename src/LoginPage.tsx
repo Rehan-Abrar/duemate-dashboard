@@ -170,6 +170,22 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: theme.radius.sm,
     cursor: "pointer",
   },
+  botChatButton: {
+    display: "block",
+    width: "100%",
+    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    marginBottom: theme.spacing.md,
+    textAlign: "center" as const,
+    fontSize: theme.fontSizes.base,
+    fontFamily: theme.fonts.body,
+    fontWeight: theme.fontWeights.semibold,
+    color: theme.colors.text,
+    background: theme.colors.surface,
+    border: `1px solid ${theme.colors.borderLight}`,
+    borderRadius: theme.radius.md,
+    textDecoration: "none",
+    transition: theme.transitions.fast,
+  },
   otpInputContainer: {
     display: "flex",
     gap: theme.spacing.sm,
@@ -210,6 +226,7 @@ const styles: Record<string, React.CSSProperties> = {
 interface LoginPageProps {
   onLoginSuccess: (response: AuthVerifyResponse) => void;
   botNumber?: string;
+  botChatLink?: string;
 }
 
 type Step = "activate" | "phone" | "otp";
@@ -217,6 +234,7 @@ type Step = "activate" | "phone" | "otp";
 export function LoginPage({
   onLoginSuccess,
   botNumber = "+92 316 7949401", // Replace with actual bot number
+  botChatLink = "https://wa.link/w3qr5s",
 }: LoginPageProps) {
   const [step, setStep] = useState<Step>("activate");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -429,6 +447,16 @@ export function LoginPage({
                 {isCopied ? "✓ Copied" : "Copy"}
               </button>
             </div>
+
+            <a
+              href={botChatLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={styles.botChatButton}
+              aria-label="Open WhatsApp chat with the DueMate bot"
+            >
+              Open WhatsApp Chat ↗
+            </a>
             
             <button
               style={styles.button}
