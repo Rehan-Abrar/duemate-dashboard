@@ -186,8 +186,8 @@ export async function getValidToken(): Promise<string | null> {
     return accessToken;
   }
   
-  // No refresh token or it's expired — user must login
-  if (!refreshToken || isTokenExpired(refreshToken)) {
+  // Refresh token is opaque (not JWT). If it's missing, user must login.
+  if (!refreshToken) {
     clearAuth();
     return null;
   }
