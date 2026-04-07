@@ -194,7 +194,9 @@ export async function getValidToken(): Promise<string | null> {
   
   // Try silent refresh
   try {
-    const apiUrl = import.meta.env.VITE_API_URL || "";
+    const apiUrl = (
+      import.meta.env.VITE_API_URL || "https://duemate-backend-31qm.onrender.com"
+    ).replace(/\/$/, "");
     const response = await fetch(`${apiUrl}/api/auth/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

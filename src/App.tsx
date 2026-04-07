@@ -9,7 +9,6 @@ import { theme, generateCSSVariables } from "./theme";
 import { LoginPage } from "./LoginPage";
 import { Dashboard } from "./Dashboard";
 import { 
-  isAuthenticated, 
   handleLoginSuccess as storeLoginData,
   getValidToken,
   clearAuth

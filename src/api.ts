@@ -31,7 +31,9 @@ import { getAuthTokens, setAuthTokens, clearAuth } from "./auth";
 // CONFIGURATION
 // ─────────────────────────────────────────────────────────────────────────────
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "";
+const API_BASE_URL = (
+  import.meta.env.VITE_API_URL || "https://duemate-backend-31qm.onrender.com"
+).replace(/\/$/, "");
 
 // Human-friendly error messages for API error codes
 const ERROR_MESSAGES: Record<string, string> = {
