@@ -277,9 +277,8 @@ export function TaskCard({
   };
   
   const showCourseUnresolved = !!task.course_unresolved;
-  const showDateReview = task.date_uncertain !== undefined
-    ? !!task.date_uncertain
-    : (!!task.needs_review && !task.course_unresolved);
+  // date_uncertain is the precise flag; needs_review is the legacy fallback
+  const showDateReview = !!(task.date_uncertain ?? task.needs_review);
   
   // Calculate padding for banners
   const bannerPadding =
