@@ -265,8 +265,16 @@ export function TaskCard({
   const deadlineColor = getDeadlineColor(dueDate);
   const deadlineText = getDeadlineText(dueDate);
   
-  // Format due date for display
+  // Format due date — omit time when it's the "end of day" default (23:59 UTC)
   const formatDueDate = (date: Date) => {
+    const isDefaultTime = date.getUTCHours() === 23 && date.getUTCMinutes() === 59;
+    if (isDefaultTime) {
+      return date.toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      });
+    }
     return date.toLocaleDateString("en-US", {
       weekday: "short",
       month: "short",

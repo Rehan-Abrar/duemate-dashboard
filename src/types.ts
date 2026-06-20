@@ -54,6 +54,7 @@ export interface Task {
   needs_review: boolean;
   course_unresolved?: boolean;
   date_uncertain?: boolean;
+  has_explicit_time?: boolean;
   status: TaskStatus;
   created_at: string;
   corrected_at: string | null;
