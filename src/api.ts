@@ -43,6 +43,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   otp_expired: "That code has expired. Request a new one and try again.",
   otp_invalid: "That code doesn't match. Double-check and try again.",
   otp_rate_limited: "Too many attempts. Please wait a few minutes.",
+  whatsapp_window_closed: "Please message the DueMate bot on WhatsApp first, then request a code again.",
   
   // Task errors
   task_not_found: "That task couldn't be found. It may have been deleted.",

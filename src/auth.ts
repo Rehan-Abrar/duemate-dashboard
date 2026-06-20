@@ -116,20 +116,32 @@ export function handleLogout(): void {
  * Assumes Pakistan country code (+92) if not provided.
  */
 export function normalizePhoneNumber(phone: string): string {
-  // Remove all non-digit characters except leading +
-  let cleaned = phone.replace(/[^\d+]/g, "");
-  
-  // If starts with 0, assume Pakistan number
-  if (cleaned.startsWith("0")) {
-    cleaned = "+92" + cleaned.slice(1);
+  const raw = phone.trim();
+  const digits = raw.replace(/\D/g, "");
+  if (!digits) return "";
+
+  // Keep explicit international input (e.g., +923001234567).
+  if (raw.startsWith("+")) {
+    return `+${digits}`;
   }
-  
-  // If doesn't start with +, assume it's a local number
-  if (!cleaned.startsWith("+")) {
-    cleaned = "+92" + cleaned;
+
+  // Support 00-prefixed international numbers.
+  if (digits.startsWith("00")) {
+    return `+${digits.slice(2)}`;
   }
-  
-  return cleaned;
+
+  // Don't duplicate Pakistan country code if user types 92... without +.
+  if (digits.startsWith("92")) {
+    return `+${digits}`;
+  }
+
+  // Local Pakistani format (03xx...) -> +92...
+  if (digits.startsWith("0")) {
+    return `+92${digits.slice(1)}`;
+  }
+
+  // Fallback: treat as a local Pakistan number without trunk prefix.
+  return `+92${digits}`;
 }
 
 /**

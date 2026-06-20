@@ -158,6 +158,15 @@ const styles: Record<string, React.CSSProperties> = {
     textAlign: "center" as const,
     cursor: "pointer",
   },
+  courseUnresolvedBanner: {
+    padding: `${theme.spacing.xs} ${theme.spacing.md}`,
+    background: theme.colors.accent,
+    color: theme.colors.textInverse,
+    fontSize: theme.fontSizes.xs,
+    fontWeight: theme.fontWeights.bold,
+    textAlign: "center" as const,
+    cursor: "pointer",
+  },
   duplicateBanner: {
     padding: `${theme.spacing.xs} ${theme.spacing.md}`,
     background: theme.colors.textMuted,
@@ -267,9 +276,16 @@ export function TaskCard({
     });
   };
   
+  const showCourseUnresolved = !!task.course_unresolved;
+  const showDateReview = task.date_uncertain !== undefined
+    ? !!task.date_uncertain
+    : (!!task.needs_review && !task.course_unresolved);
+  
   // Calculate padding for banners
   const bannerPadding =
-    (task.needs_review ? 28 : 0) + (task.is_potential_duplicate ? 24 : 0);
+    (showCourseUnresolved ? 28 : 0) +
+    (showDateReview ? 28 : 0) +
+    (task.is_potential_duplicate ? 24 : 0);
   
   return (
     <div
@@ -284,14 +300,24 @@ export function TaskCard({
     >
       {/* Status Banners */}
       <div style={styles.banners}>
-        {task.needs_review && (
+        {showCourseUnresolved && (
+          <div
+            style={styles.courseUnresolvedBanner}
+            onClick={() => onEdit(task)}
+            role="button"
+            tabIndex={0}
+          >
+            ❓ Course not detected — tap to set
+          </div>
+        )}
+        {showDateReview && (
           <div
             style={styles.needsReviewBanner}
             onClick={() => onEdit(task)}
             role="button"
             tabIndex={0}
           >
-            ⚠️ NEEDS REVIEW — Click to fix details
+            ⚠️ Date uncertain — click to review/fix details
           </div>
         )}
         {task.is_potential_duplicate && (

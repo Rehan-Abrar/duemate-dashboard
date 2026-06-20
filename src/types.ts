@@ -52,6 +52,8 @@ export interface Task {
   quiz_time: string | null;
   parse_confidence: number;
   needs_review: boolean;
+  course_unresolved?: boolean;
+  date_uncertain?: boolean;
   status: TaskStatus;
   created_at: string;
   corrected_at: string | null;
