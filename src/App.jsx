@@ -94,6 +94,7 @@ function TopBar({ token, onLogout, theme, onThemeChange }) {
             <p className="brand-title">DueMate</p>
             <p className="brand-sub">Student and Operations Console</p>
           </div>
+          <span className="ai-badge" title="Messages are processed by an AI language model (Groq / Llama-3.3-70b) to extract task details automatically.">✦ AI-Powered</span>
         </div>
 
         <nav className="route-nav">
@@ -599,6 +600,14 @@ function StudentDashboard({ token, currentUser, onUnauthorized }) {
           ))}
         </article>
       </section>
+
+      <footer className="ai-disclosure-footer">
+        <span>✦ AI-Powered Parsing</span>
+        <span className="ai-disclosure-sep">·</span>
+        <span>Your messages are processed by Groq (Llama-3.3-70b) to automatically extract assignment and quiz details.</span>
+        <span className="ai-disclosure-sep">·</span>
+        <span>Always review AI-parsed tasks before deadlines.</span>
+      </footer>
     </main>
   );
 }
