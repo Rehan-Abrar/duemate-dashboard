@@ -9,9 +9,8 @@ interface ProfileProps {
 
 export function Profile({ user, tasks, onLogout, onNavigateTimetable }: ProfileProps) {
   const pendingCount = tasks.filter((t) => t.status !== "completed").length;
-  // TODO: When backend User model has name/semester fields, display them here.
-  //       For now we show the phone number and a placeholder name.
-  const displayName = "Student";
+  // Read the name saved during ProfileSetup from localStorage
+  const displayName = localStorage.getItem("duemate_user_name") || "Student";
   const memberSince = new Date(user.created_at).toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
