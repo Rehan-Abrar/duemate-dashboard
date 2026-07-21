@@ -117,13 +117,13 @@ export function WhatsAppNumber({ onBack, onNext }: WhatsAppNumberProps) {
               <label className="text-[12px] font-semibold text-text-secondary uppercase">
                 WhatsApp Number
               </label>
-              <div className="relative flex items-center">
-                <div className="absolute left-4 flex items-center gap-2 text-text-secondary border-r border-[#c6c6cd]/50 pr-3 z-10">
-                  <span className="material-symbols-outlined text-[20px]">call</span>
+              <div className="flex items-center neumorphic-inset rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-[#2563EB]/30 transition-all">
+                <div className="flex items-center gap-1.5 pl-4 pr-3 h-14 border-r border-[#c6c6cd]/50 shrink-0">
+                  <span className="material-symbols-outlined text-[20px] text-text-secondary">call</span>
                   <span className="text-sm font-semibold text-deep-navy">+92</span>
                 </div>
                 <input
-                  className="w-full h-14 pl-28 pr-4 neumorphic-inset border-none rounded-xl focus:ring-2 focus:ring-[#2563EB]/30 text-base text-deep-navy placeholder:text-[#c6c6cd] transition-all"
+                  className="flex-1 h-14 px-3 border-none bg-transparent text-base text-deep-navy placeholder:text-[#c6c6cd] focus:outline-none transition-all min-w-0"
                   placeholder="3XX-XXXXXXX"
                   type="tel"
                   value={phoneNumber}
