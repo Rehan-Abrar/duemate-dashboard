@@ -2,6 +2,12 @@ import { useState } from "react";
 import { tasksApi } from "../../api";
 import type { Task, User } from "../../types";
 import { RoundSpinner } from "../../components/ui/spinner";
+import {
+  analyzeWorkload,
+  getWorkloadBadge,
+  getTaskEmptyState,
+  getTasksSubtitle,
+} from "../../lib/insights";
 
 interface TasksProps {
   user: User;
@@ -15,6 +21,11 @@ interface TasksProps {
 export function Tasks({ tasks, loading, refreshTasks, onNavigate, onAddTask }: TasksProps) {
   const [filter, setFilter] = useState<"all" | "assignments" | "quizzes" | "exams" | "completed">("all");
 
+  // Data-driven insights
+  const analysis = analyzeWorkload(tasks);
+  const workloadBadge = getWorkloadBadge(analysis);
+  const tasksSubtitle = getTasksSubtitle(analysis);
+
   const handleComplete = async (id: string) => {
     try {
       await tasksApi.complete(id);
@@ -25,7 +36,6 @@ export function Tasks({ tasks, loading, refreshTasks, onNavigate, onAddTask }: T
   };
 
   const completedCount = tasks.filter((t) => t.status === "completed").length;
-  const overdueCount = tasks.filter((t) => t.status === "needs_review").length; // simplified
   const pendingTasks = tasks.filter((t) => t.status !== "completed");
 
   const filteredTasks = tasks.filter((task) => {
@@ -42,7 +52,7 @@ export function Tasks({ tasks, loading, refreshTasks, onNavigate, onAddTask }: T
       <header className="hidden md:flex justify-between items-center w-full px-6 sticky top-0 z-40 py-4 bg-background-base">
         <div className="flex flex-col">
           <h1 className="text-[24px] font-bold text-on-surface">Tasks</h1>
-          <p className="text-[14px] text-text-secondary">Keep track of your academic work</p>
+          <p className="text-[14px] text-text-secondary">{tasksSubtitle}</p>
         </div>
         <button
           onClick={onAddTask}
@@ -62,9 +72,14 @@ export function Tasks({ tasks, loading, refreshTasks, onNavigate, onAddTask }: T
         <section className="neumorphic-raised rounded-[20px] p-6">
           <div className="flex items-center justify-between mb-4">
             <span className="text-[20px] font-bold text-on-surface">{tasks.length} Tasks</span>
-            <div className="bg-highlight-soft px-3 py-1 rounded-full">
-              <span className="text-[12px] font-semibold text-secondary uppercase tracking-wider">
-                Weekly Focus
+            <div className={`px-3 py-1 rounded-full ${
+              workloadBadge.variant === "success" ? "bg-emerald-100 text-emerald-700" :
+              workloadBadge.variant === "info" ? "bg-blue-100 text-blue-700" :
+              workloadBadge.variant === "warning" ? "bg-amber-100 text-amber-700" :
+              "bg-rose-100 text-rose-700"
+            }`}>
+              <span className="text-[12px] font-semibold uppercase tracking-wider">
+                {workloadBadge.label}
               </span>
             </div>
           </div>
@@ -78,7 +93,7 @@ export function Tasks({ tasks, loading, refreshTasks, onNavigate, onAddTask }: T
               <span className="text-[14px] text-text-secondary">Completed</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-[20px] font-bold text-danger">{overdueCount}</span>
+              <span className="text-[20px] font-bold text-danger">{analysis.overdueCount}</span>
               <span className="text-[14px] text-text-secondary">Overdue</span>
             </div>
           </div>
@@ -129,16 +144,10 @@ export function Tasks({ tasks, loading, refreshTasks, onNavigate, onAddTask }: T
                 </span>
               </div>
               <h3 className="text-lg font-bold text-slate-900">
-                {filter === "completed" ? "No completed tasks yet" : "All caught up!"}
+                {getTaskEmptyState(filter, analysis).title}
               </h3>
               <p className="text-sm text-slate-500 max-w-[280px] mx-auto leading-relaxed">
-                {filter === "completed"
-                  ? "Finish your pending tasks and check them off to build your completion streak!"
-                  : filter === "assignments"
-                  ? "No pending assignments found. Good job keeping your schedule clean!"
-                  : filter === "quizzes"
-                  ? "No upcoming quizzes on your radar. Keep up the review sessions!"
-                  : "You have no pending tasks. Enjoy your free time or add a new task if you want to track something."}
+                {getTaskEmptyState(filter, analysis).description}
               </p>
             </div>
           )}

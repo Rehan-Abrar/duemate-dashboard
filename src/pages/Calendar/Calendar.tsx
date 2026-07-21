@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import type { Task, User } from "../../types";
 import { RoundSpinner } from "../../components/ui/spinner";
+import { analyzeWorkload, getCalendarInsight } from "../../lib/insights";
 
 interface CalendarProps {
   user: User;
@@ -14,6 +15,10 @@ export function Calendar({ tasks: allTasks, loading, onAddTask }: CalendarProps)
   const pendingTasks = allTasks.filter(t => t.status !== "completed");
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Data-driven calendar insight
+  const analysis = analyzeWorkload(allTasks);
+  const calendarInsight = getCalendarInsight(analysis);
 
 
   // Generate timeline dates from 30 days ago to 90 days in the future
@@ -283,18 +288,23 @@ export function Calendar({ tasks: allTasks, loading, onAddTask }: CalendarProps)
           <div className="md:col-span-5 order-1 md:order-2 space-y-8">
             {/* AI Insight Card */}
             <section>
-              <div className="bg-highlight-soft p-6 rounded-[20px] neumorphic-raised relative overflow-hidden flex flex-col gap-2 border border-white/40">
+              <div className={`bg-highlight-soft p-6 rounded-[20px] neumorphic-raised relative overflow-hidden flex flex-col gap-2 border border-white/40 ${
+                analysis.level === "critical" ? "border-l-4 border-rose-500" :
+                analysis.level === "high" ? "border-l-4 border-amber-500" :
+                analysis.level === "moderate" ? "border-l-4 border-blue-500" :
+                ""
+              }`}>
                 <div className="flex items-center gap-2 text-secondary">
                   <span
                     className="material-symbols-outlined text-[20px]"
                     style={{ fontVariationSettings: "'FILL' 1" }}
                   >
-                    smart_toy
+                    {analysis.level === "low" ? "check_circle" : "smart_toy"}
                   </span>
-                  <span className="text-[20px] font-bold">Busy week ahead</span>
+                  <span className="text-[20px] font-bold">{calendarInsight.headline}</span>
                 </div>
                 <p className="text-on-surface-variant text-[16px] max-w-[90%]">
-                  You have {tasks.length} pending tasks. I recommend starting your next assignment today.
+                  {calendarInsight.body}
                 </p>
                 <div className="absolute -right-4 -top-4 opacity-10">
                   <span className="material-symbols-outlined text-[120px]">auto_awesome</span>

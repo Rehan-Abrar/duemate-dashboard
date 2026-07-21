@@ -2,6 +2,12 @@ import { useState, useEffect } from "react";
 import { timetableApi } from "../../api";
 import type { Task, TimetableSlot, TimetableData } from "../../types";
 import { RoundSpinner } from "../../components/ui/spinner";
+import {
+  analyzeWorkload,
+  getDashboardGreeting,
+  getDueSoonLabel,
+  getTimeGreeting,
+} from "../../lib/insights";
 
 interface DashboardProps {
   tasks: Task[];
@@ -28,6 +34,11 @@ export function Dashboard({ tasks, loading, onNavigate }: DashboardProps) {
 
   // Parse the user's name from localStorage if saved during ProfileSetup
   const savedName = localStorage.getItem("duemate_user_name") || "Student";
+
+  // Data-driven insights
+  const analysis = analyzeWorkload(tasks);
+  const greeting = getDashboardGreeting(analysis, savedName);
+  const dueSoonLabel = getDueSoonLabel(analysis);
 
   useEffect(() => {
     async function loadTimetable() {
@@ -74,8 +85,7 @@ export function Dashboard({ tasks, loading, onNavigate }: DashboardProps) {
       {/* TopAppBar (Desktop Only) */}
       <header className="hidden md:flex w-full top-0 sticky z-40 bg-background-base items-center justify-between px-6 py-4 shadow-[6px_6px_12px_#d1d9e6,-6px_-6px_12px_#ffffff]">
         <div className="flex items-center gap-3">
-          <h1 className="text-[20px] leading-[1.4] font-bold text-primary tracking-tight">
-            Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, {savedName} 👋
+          <h1 className="text-[20px] leading-[1.4] font-bold text-primary tracking-tight">              {getTimeGreeting(savedName)} 👋
           </h1>
         </div>
         <div className="w-10 h-10 rounded-full neumorphic-raised p-0.5 overflow-hidden cursor-pointer" onClick={() => onNavigate("profile")}>
@@ -110,22 +120,40 @@ export function Dashboard({ tasks, loading, onNavigate }: DashboardProps) {
         <div className="md:col-span-8 space-y-6">
           {/* AI Greeting Card */}
           <section className="relative p-6 border border-white/40 rounded-[24px] bg-background-base shadow-[8px_8px_16px_#d1d9e6,-8px_-8px_16px_#ffffff] z-10 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#2563EB]/10 via-[#DCE8FF]/5 to-[#2563EB]/10 animate-pulse -z-10" />
+            <div className={`absolute inset-0 bg-gradient-to-tr ${
+              greeting.mood === "relaxed" ? "from-emerald-500/10 via-[#DCE8FF]/5 to-emerald-500/10" :
+              greeting.mood === "focused" ? "from-blue-500/10 via-[#DCE8FF]/5 to-blue-500/10" :
+              greeting.mood === "urgent" ? "from-amber-500/10 via-[#FFF3D6]/5 to-amber-500/10" :
+              "from-rose-500/10 via-[#FFE5E5]/5 to-rose-500/10"
+            } animate-pulse -z-10`} />
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-blue-600/10 flex items-center justify-center flex-shrink-0">
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${
+                greeting.mood === "relaxed" ? "bg-emerald-600/10" :
+                greeting.mood === "focused" ? "bg-blue-600/10" :
+                greeting.mood === "urgent" ? "bg-amber-600/10" :
+                "bg-rose-600/10"
+              }`}>
                 <span
-                  className="material-symbols-outlined text-blue-600 text-2xl"
+                  className={`material-symbols-outlined text-2xl ${
+                    greeting.mood === "relaxed" ? "text-emerald-600" :
+                    greeting.mood === "focused" ? "text-blue-600" :
+                    greeting.mood === "urgent" ? "text-amber-600" :
+                    "text-rose-600"
+                  }`}
                   style={{ fontVariationSettings: "'FILL' 1" }}
                 >
-                  auto_awesome
+                  {greeting.mood === "relaxed" ? "check_circle" :
+                   greeting.mood === "focused" ? "auto_awesome" :
+                   greeting.mood === "urgent" ? "notification_important" :
+                   "warning"}
                 </span>
               </div>
               <div className="flex-1">
                 <h2 className="text-lg font-bold text-slate-900 mb-1">
-                  Semester Overview
+                  {greeting.title}
                 </h2>
                 <p className="text-sm font-medium text-slate-600 leading-relaxed">
-                  {loading ? "Checking your schedule..." : `Your semester is under control. You have ${pendingTasks.length} upcoming ${pendingTasks.length === 1 ? "deadline" : "deadlines"}.`}
+                  {loading ? "Checking your schedule..." : greeting.body}
                 </p>
               </div>
             </div>
@@ -134,15 +162,23 @@ export function Dashboard({ tasks, loading, onNavigate }: DashboardProps) {
             <div className="mt-6 pt-4 border-t border-slate-300/40 grid grid-cols-3 gap-4 text-center">
               <div className="neu-inset-soft p-3 rounded-xl">
                 <span className="text-xs font-semibold text-slate-500 block">Pending</span>
-                <span className="text-xl font-bold text-slate-900">{pendingTasks.length}</span>
+                <span className="text-xl font-bold text-slate-900">{analysis.pendingCount}</span>
               </div>
               <div className="neu-inset-soft p-3 rounded-xl">
-                <span className="text-xs font-semibold text-slate-500 block">Due Soon</span>
-                <span className="text-xl font-bold text-amber-500">{pendingTasks.filter(t => t.parsed_due_date && new Date(t.parsed_due_date).getTime() - Date.now() < 3 * 86400000).length}</span>
+                <span className={`text-xs font-semibold block ${
+                  dueSoonLabel.urgency === "high" ? "text-rose-500" :
+                  dueSoonLabel.urgency === "medium" ? "text-amber-500" :
+                  "text-slate-500"
+                }`}>{dueSoonLabel.label}</span>
+                <span className={`text-xl font-bold ${
+                  dueSoonLabel.urgency === "high" ? "text-rose-600" :
+                  dueSoonLabel.urgency === "medium" ? "text-amber-500" :
+                  "text-slate-900"
+                }`}>{dueSoonLabel.count}</span>
               </div>
               <div className="neu-inset-soft p-3 rounded-xl">
                 <span className="text-xs font-semibold text-slate-500 block">Completed</span>
-                <span className="text-xl font-bold text-emerald-600">{tasks.filter(t => t.status === "completed").length}</span>
+                <span className="text-xl font-bold text-emerald-600">{analysis.completedCount}</span>
               </div>
             </div>
           </section>
