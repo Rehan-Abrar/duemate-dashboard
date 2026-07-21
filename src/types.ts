@@ -255,3 +255,37 @@ export interface CourseMapping {
   canonical_course: string;
   created_at: string;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TIMETABLE TYPES
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface TimetableSlot {
+  day: string;
+  time: string;
+  course: string;
+  room?: string;
+  teacher?: string;
+  section?: string;
+}
+
+/**
+ * The timetable JSON structure returned by GET /api/student/timetable.
+ * The exact shape depends on the backend RAG data; this is a flexible wrapper.
+ */
+export type TimetableData = Record<string, unknown> | TimetableSlot[];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AI ASSISTANT TYPES
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface AssistantMessage {
+  role: "user" | "assistant";
+  content: string;
+  timestamp: string;
+}
+
+export interface AssistantChatResponse {
+  reply: string;
+  intent: string;
+}

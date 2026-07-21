@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DueMate - OTP Verification</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #EAF0F8; /* Soft cloud blue background from prompt */
+        }
+
+        .neumorphic-raised {
+            box-shadow: 6px 6px 12px #d1d9e6, -6px -6px 12px #ffffff;
+        }
+
+        .neumorphic-inset {
+            box-shadow: inset 4px 4px 8px #d1d9e6, inset -4px -4px 8px #ffffff;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Custom focus ring for neumorphic inputs */
+        .otp-input:focus {
+            box-shadow: inset 2px 2px 4px #d1d9e6, inset -2px -2px 4px #ffffff, 0 0 0 2px #0051d5;
+            outline: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-surface": "#1b1b1d",
+                        "background": "#fcf8fa",
+                        "inverse-primary": "#bec6e0",
+                        "primary-fixed-dim": "#bec6e0",
+                        "secondary": "#0051d5",
+                        "outline": "#76777d",
+                        "highlight-soft": "#DCE8FF",
+                        "surface-neumorphic": "#EAF0F8",
+                        "on-background": "#1b1b1d",
+                        "secondary-container": "#316bf3",
+                        "on-secondary-container": "#fefcff",
+                        "outline-variant": "#c6c6cd",
+                        "background-base": "#EAF0F8",
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "20px",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "margin-page": "24px",
+                        "component-padding": "24px",
+                    },
+                    fontFamily: {
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "headline-sm": ["Inter"],
+                    },
+                    fontSize: {
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "700"}],
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-base min-h-screen flex flex-col items-center">
+<!-- Screen Shell (Mobile focused 390x844 relative) -->
+<div class="w-full max-w-[390px] min-h-screen flex flex-col bg-background-base relative overflow-hidden pb-8">
+<!-- Header -->
+<header class="w-full h-16 flex items-center justify-between px-6 sticky top-0 bg-background-base/80 backdrop-blur-md z-50">
+<div class="flex items-center gap-2">
+<img alt="DueMate Logo" class="w-8 h-8 object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLvbMejPu71LxcmoGoVKFx-KuuabxP3ZqgYCzVO-RzzfzDKS-bjKYHtl9vodmL-CeTlg2na7H7kYT0h8MzdW8x72dVdy6gQNLmH-8VHr0vZoQ1UJKfQzgztn13u3lyaM-_kuogfC9T-PPKAYSEpOkq6UeaJPXXLugGt2bdEaH8eOwDWPbOYCgRR4dV0re_HFaCne2aXjRN1kp9aPNbaNbG8syC1gWbA7CdcFH6YhJ-_fWXtdnYnNaMhtg0w"/>
+<span class="font-headline-sm text-headline-sm text-on-surface">DueMate</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-[10px] font-bold uppercase tracking-wider text-outline">Step 3 of 3</span>
+<div class="h-1 w-16 bg-outline-variant rounded-full mt-1 overflow-hidden">
+<div class="h-full w-full bg-secondary"></div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 px-6 flex flex-col">
+<!-- Hero Section -->
+<section class="mt-8 text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+<div class="inline-flex items-center gap-1.5 bg-highlight-soft px-3 py-1 rounded-full mb-4">
+<span class="material-symbols-outlined text-[14px] text-secondary">verified_user</span>
+<span class="font-label-caps text-label-caps text-secondary">WhatsApp Verification</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">Enter Code</h1>
+<p class="font-body-md text-body-md text-outline px-4">
+                    We sent a 6-digit code to your WhatsApp.
+                </p>
+<button class="mt-2 text-secondary font-medium text-sm flex items-center justify-center gap-1 mx-auto hover:underline active:scale-95 transition-transform">
+                    Change Number
+                    <span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+</section>
+<!-- OTP Input Card -->
+<section class="mt-10 neumorphic-raised bg-background-base rounded-2xl p-6">
+<div class="flex justify-between items-center gap-2" id="otp-container">
+<!-- 6 Digit Inputs -->
+<input class="otp-input w-11 h-14 bg-background-base border-none rounded-xl text-center text-xl font-bold text-on-surface neumorphic-inset focus:ring-2 focus:ring-secondary transition-all" maxlength="1" pattern="\d*" type="text"/>
+<input class="otp-input w-11 h-14 bg-background-base border-none rounded-xl text-center text-xl font-bold text-on-surface neumorphic-inset focus:ring-2 focus:ring-secondary transition-all" maxlength="1" pattern="\d*" type="text"/>
+<input class="otp-input w-11 h-14 bg-background-base border-none rounded-xl text-center text-xl font-bold text-on-surface neumorphic-inset focus:ring-2 focus:ring-secondary transition-all" maxlength="1" pattern="\d*" type="text"/>
+<input class="otp-input w-11 h-14 bg-background-base border-none rounded-xl text-center text-xl font-bold text-on-surface neumorphic-inset focus:ring-2 focus:ring-secondary transition-all" maxlength="1" pattern="\d*" type="text"/>
+<input class="otp-input w-11 h-14 bg-background-base border-none rounded-xl text-center text-xl font-bold text-on-surface neumorphic-inset focus:ring-2 focus:ring-secondary transition-all" maxlength="1" pattern="\d*" type="text"/>
+<input class="otp-input w-11 h-14 bg-background-base border-none rounded-xl text-center text-xl font-bold text-on-surface neumorphic-inset focus:ring-2 focus:ring-secondary transition-all" maxlength="1" pattern="\d*" type="text"/>
+</div>
+<!-- Timer -->
+<div class="mt-6 flex items-center justify-center gap-2 text-outline">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span class="font-body-sm text-sm" id="timer">Code expires in 09:55</span>
+</div>
+</section>
+<!-- Primary Actions -->
+<section class="mt-10 space-y-6">
+<button class="w-full h-[56px] bg-secondary text-on-secondary-container rounded-2xl font-bold flex items-center justify-center gap-2 neumorphic-raised hover:bg-secondary/90 active:scale-[0.98] transition-all">
+                    Verify & Continue
+                    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<div class="text-center">
+<p class="text-outline text-sm">
+                        Didn't receive the code? 
+                        <button class="text-secondary font-bold hover:underline ml-1">Resend</button>
+</p>
+</div>
+</section>
+<!-- Support / Info Card -->
+<section class="mt-auto pt-8">
+<div class="neumorphic-raised bg-background-base/50 p-5 rounded-2xl flex gap-4 items-start border border-white/40">
+<div class="bg-highlight-soft p-2 rounded-xl">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">psychology</span>
+</div>
+<p class="text-[12px] leading-relaxed text-on-surface-variant font-medium">
+                        Your WhatsApp connection allows <span class="text-secondary font-bold">DueMate</span> to send assignment reminders, deadline alerts, and AI academic assistance.
+                    </p>
+</div>
+</section>
+</main>
+<!-- No Bottom Nav for Transactional Page as per Semantic Shell Mandate -->
+</div>
+<script>
+        // Micro-interaction for OTP auto-focus jump
+        const inputs = document.querySelectorAll('.otp-input');
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
+
+        // Simple Timer Simulation
+        let timeLeft = 595; // 9:55 in seconds
+        const timerElement = document.getElementById('timer');
+        
+        const updateTimer = () => {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `Code expires in ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            if (timeLeft > 0) {
+                timeLeft--;
+            } else {
+                timerElement.classList.add('text-error');
+                timerElement.textContent = 'Code expired';
+            }
+        };
+
+        setInterval(updateTimer, 1000);
+    </script>
+</body></html>

@@ -24,6 +24,8 @@ import type {
   SuccessResponse,
   CourseMapping,
   PushSubscription,
+  TimetableData,
+  AssistantChatResponse,
 } from "./types";
 import { getAuthTokens, setAuthTokens, clearAuth } from "./auth";
 
@@ -47,7 +49,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   
   // Task errors
   task_not_found: "That task couldn't be found. It may have been deleted.",
-  parse_failed: "We couldn't read the message details. Please fill them in manually.",
+  parse_failed: "We couldn't read the message details. Please check the message contains a clear assignment or quiz announcement.",
+  duplicate_task: "This task has already been saved to your list.",
   
   // Rate limiting
   too_many_requests: "You're making requests too quickly. Please wait a moment.",
@@ -310,6 +313,17 @@ export const tasksApi = {
       body: data,
     });
   },
+
+  /**
+   * Extract a task from a raw text message using AI extraction.
+   */
+  async extract(message: string): Promise<Task> {
+    const response = await apiRequest<{ item: Task }>("/api/student/tasks/extract", {
+      method: "POST",
+      body: { message },
+    });
+    return response.item;
+  },
   
   /**
    * Update an existing task.
@@ -432,6 +446,37 @@ export const courseMappingsApi = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// TIMETABLE API
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const timetableApi = {
+  /**
+   * Fetch the full student timetable from the backend RAG data.
+   */
+  async get(): Promise<TimetableData> {
+    return apiRequest<TimetableData>("/api/student/timetable", {
+      method: "GET",
+    });
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AI ASSISTANT API
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const assistantApi = {
+  /**
+   * Send a message to the AI academic assistant.
+   */
+  async chat(message: string): Promise<AssistantChatResponse> {
+    return apiRequest<AssistantChatResponse>("/api/student/assistant/chat", {
+      method: "POST",
+      body: { message },
+    });
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // DEFAULT EXPORT
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -440,4 +485,6 @@ export default {
   tasks: tasksApi,
   user: userApi,
   courseMappings: courseMappingsApi,
+  timetable: timetableApi,
+  assistant: assistantApi,
 };

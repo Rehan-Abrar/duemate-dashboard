@@ -39,44 +39,44 @@ export const theme = {
   // COLORS
   // ─────────────────────────────────────────────────────────────────────────────
   colors: {
-    // Brand colors — amber warmth
-    brand: "#F5A623",
-    brandLight: "#FFD080",
-    brandDark: "#D48B1A",
+    // Brand colors — Electric Blue from Stitch Design
+    brand: "#2563EB",
+    brandLight: "#DCE8FF",
+    brandDark: "#1D4ED8",
 
-    // Surfaces — deep grays with warm undertones
-    surface: "#121218",           // Main background
-    surfaceElevated: "#1E1E26",   // Cards, modals
-    surfaceHover: "#2A2A34",      // Interactive hover state
-    surfaceActive: "#363644",     // Active/selected state
+    // Surfaces — Soft Cloud Blue (#EAF0F8) for neumorphic look
+    surface: "#EAF0F8",           // Main background
+    surfaceElevated: "#EAF0F8",   // Neumorphic surface (same as bg to blend)
+    surfaceHover: "#F1F5F9",      // Hover state
+    surfaceActive: "#DCE8FF",     // Active/selected state (Soft Blue Highlight)
 
-    // Text — warm white and muted tones
-    text: "#F5F5F7",              // Primary text
-    textMuted: "#9CA3AF",         // Secondary/helper text
-    textInverse: "#121218",       // Text on light/brand backgrounds
+    // Text — Deep Navy and muted tones
+    text: "#0F172A",              // Primary text (Deep Navy)
+    textMuted: "#64748B",         // Secondary text
+    textInverse: "#FFFFFF",       // Text on dark/brand backgrounds
 
     // Semantic colors
-    accent: "#A78BFA",            // Purple — secondary actions, highlights
-    success: "#34D399",           // Green — completed tasks, success states
-    warning: "#FBBF24",           // Yellow — needs attention
-    danger: "#FF6B6B",            // Coral — errors, overdue items
+    accent: "#2563EB",            // Electric Blue
+    success: "#10B981",           // Green
+    warning: "#F59E0B",           // Yellow
+    danger: "#EF4444",            // Red
 
     // Utility colors
-    border: "#2E2E38",            // Subtle borders
-    borderLight: "#404050",       // More prominent borders
-    overlay: "rgba(0, 0, 0, 0.65)", // Modal/drawer overlays
-    focus: "#A78BFA",             // Focus ring color
+    border: "rgba(163, 177, 198, 0.4)",            // Subtle borders
+    borderLight: "rgba(255, 255, 255, 0.9)",       // Prominent highlight border
+    overlay: "rgba(15, 23, 42, 0.4)",              // Modal/drawer overlays
+    focus: "#2563EB",                              // Focus ring color
 
     // Gradients (CSS values)
-    gradientBrand: "linear-gradient(135deg, #F5A623 0%, #FFD080 100%)",
-    gradientSurface: "linear-gradient(180deg, #1E1E26 0%, #121218 100%)",
+    gradientBrand: "linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)",
+    gradientSurface: "linear-gradient(180deg, #EAF0F8 0%, #DFE7F2 100%)",
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
   // TYPOGRAPHY
   // ─────────────────────────────────────────────────────────────────────────────
   fonts: {
-    display: "'Space Grotesk', system-ui, sans-serif",
+    display: "'Inter', system-ui, sans-serif",
     body: "'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
     mono: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
   },
@@ -106,14 +106,14 @@ export const theme = {
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // SPACING
+  // SPACING (8-point system)
   // ─────────────────────────────────────────────────────────────────────────────
   spacing: {
-    xs: "4px",
-    sm: "8px",
-    md: "16px",
-    lg: "24px",
-    xl: "32px",
+    xs: "8px",
+    sm: "16px",
+    md: "24px",
+    lg: "32px",
+    xl: "40px",
     "2xl": "48px",
     "3xl": "64px",
   },
@@ -122,24 +122,25 @@ export const theme = {
   // BORDER RADIUS
   // ─────────────────────────────────────────────────────────────────────────────
   radius: {
-    sm: "6px",        // Small elements (badges, tags)
-    md: "10px",       // Cards, inputs
-    lg: "16px",       // Large cards, modals
-    xl: "24px",       // Feature sections
-    pill: "999px",    // Pills, circular badges
-    full: "50%",      // Perfect circles
+    sm: "8px",        // Badges, tags, small inputs
+    md: "16px",       // Inputs, buttons (height 48px, radius 16px)
+    lg: "20px",       // Cards (radius 20px)
+    xl: "24px",       // Large features, panels
+    pill: "999px",    // Pills
+    full: "50%",      // Circles
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // SHADOWS
+  // SHADOWS (Neumorphic)
   // ─────────────────────────────────────────────────────────────────────────────
   shadows: {
-    sm: "0 1px 2px rgba(0, 0, 0, 0.25)",
-    card: "0 4px 12px rgba(0, 0, 0, 0.35), 0 2px 4px rgba(0, 0, 0, 0.25)",
-    elevated: "0 8px 24px rgba(0, 0, 0, 0.45), 0 4px 8px rgba(0, 0, 0, 0.3)",
-    modal: "0 16px 48px rgba(0, 0, 0, 0.5), 0 8px 16px rgba(0, 0, 0, 0.35)",
-    glow: "0 0 20px rgba(245, 166, 35, 0.25)",  // Brand color glow
-    focus: "0 0 0 3px rgba(167, 139, 250, 0.4)", // Focus ring
+    sm: "2px 2px 5px rgba(163, 177, 198, 0.5), -2px -2px 5px rgba(255, 255, 255, 0.8)",
+    card: "6px 6px 12px rgba(163, 177, 198, 0.6), -6px -6px 12px rgba(255, 255, 255, 0.9)",
+    elevated: "10px 10px 20px rgba(163, 177, 198, 0.7), -10px -10px 20px rgba(255, 255, 255, 0.95)",
+    modal: "16px 16px 32px rgba(163, 177, 198, 0.8), -16px -16px 32px rgba(255, 255, 255, 1)",
+    glow: "0 0 15px rgba(37, 99, 235, 0.2)",  // Electric Blue glow
+    focus: "0 0 0 3px rgba(37, 99, 235, 0.4)", // Focus outline
+    inset: "inset 4px 4px 8px rgba(163, 177, 198, 0.6), inset -4px -4px 8px rgba(255, 255, 255, 0.9)", // Pressed states
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -147,19 +148,19 @@ export const theme = {
   // ─────────────────────────────────────────────────────────────────────────────
   taskColors: {
     // Task type badges
-    assignment: "#6366F1",   // Indigo — substantial work
-    quiz: "#EC4899",         // Pink — quick assessment
+    assignment: "#2563EB",   // Electric Blue
+    quiz: "#EC4899",         // Pink
 
     // Urgency states
-    overdue: "#FF6B6B",      // Coral — past due
-    dueToday: "#F5A623",     // Amber — due today (brand color)
-    dueSoon: "#A78BFA",      // Lavender — due within 3 days
-    upcoming: "#6B7280",     // Gray — more than 3 days out
-    completed: "#34D399",    // Green — done
+    overdue: "#EF4444",      // Red
+    dueToday: "#F59E0B",     // Amber
+    dueSoon: "#3B82F6",      // Blue
+    upcoming: "#64748B",     // Gray
+    completed: "#10B981",    // Green
 
     // Status indicators
-    needsReview: "#FBBF24",  // Yellow — requires attention
-    duplicate: "#9CA3AF",    // Muted gray — potential duplicate
+    needsReview: "#F59E0B",  // Warning
+    duplicate: "#64748B",    // Muted gray
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
