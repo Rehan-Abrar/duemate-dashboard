@@ -5,9 +5,12 @@ interface ProfileProps {
   tasks: Task[];
   onLogout: () => void;
   onNavigateTimetable: () => void;
+  availableSections?: string[];
+  currentSection?: string | null;
+  onChangeSection?: () => void;
 }
 
-export function Profile({ user, tasks, onLogout, onNavigateTimetable }: ProfileProps) {
+export function Profile({ user, tasks, onLogout, onNavigateTimetable, availableSections = [], currentSection, onChangeSection }: ProfileProps) {
   const pendingCount = tasks.filter((t) => t.status !== "completed").length;
   // Read the name saved during ProfileSetup from localStorage
   const displayName = localStorage.getItem("duemate_user_name") || "Student";
@@ -95,22 +98,35 @@ export function Profile({ user, tasks, onLogout, onNavigateTimetable }: ProfileP
             </div>
           </div>
           <div className="space-y-3 mt-4">
+            {/* Active section display */}
             <div className="flex justify-between items-center bg-highlight-soft px-4 py-3 rounded-xl">
-              <span className="text-on-surface-variant font-medium text-sm">Status</span>
-              <span className="text-success font-semibold text-sm flex items-center gap-1"><span className="material-symbols-outlined text-sm">check_circle</span> Uploaded</span>
+              <span className="text-on-surface-variant font-medium text-sm">Active Class</span>
+              {currentSection ? (
+                <span className="text-secondary font-bold text-sm flex items-center gap-1">
+                  <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                  {currentSection}
+                </span>
+              ) : (
+                <span className="text-on-surface-variant font-semibold text-sm">Not set</span>
+              )}
             </div>
+
+            {/* Change class — instant if sections already stored, re-upload otherwise */}
+            <button
+              onClick={onChangeSection ?? onNavigateTimetable}
+              className="w-full py-3 neumorphic-button-secondary rounded-xl font-bold transition-all active:scale-95 flex items-center justify-center gap-2 text-secondary"
+            >
+              <span className="material-symbols-outlined text-sm">edit</span>
+              {availableSections.length > 0 ? "Change Selected Class" : "Select Class"}
+            </button>
+
+            {/* Always allow full re-upload */}
             <button
               onClick={onNavigateTimetable}
               className="w-full py-3 neumorphic-button-primary rounded-xl font-bold transition-all active:scale-95 flex items-center justify-center gap-2"
             >
               <span className="material-symbols-outlined text-sm">upload</span>
               Upload New Timetable
-            </button>
-            <button
-              className="w-full py-3 neumorphic-button-secondary rounded-xl font-bold transition-all active:scale-95 flex items-center justify-center gap-2 text-secondary"
-            >
-              <span className="material-symbols-outlined text-sm">edit</span>
-              Change Selected Class
             </button>
           </div>
         </section>

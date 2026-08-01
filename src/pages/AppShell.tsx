@@ -16,13 +16,28 @@ interface AppShellProps {
 }
 
 type Tab = "home" | "tasks" | "calendar" | "timetable" | "assistant" | "profile";
-type ModalView = null | "upload-timetable";
+type ModalView = null | "upload-timetable" | "change-class";
 
 export function AppShell({ onLogout, user }: AppShellProps) {
   const [activeTab, setActiveTab] = useState<Tab>("home");
   const [modalView, setModalView] = useState<ModalView>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [timetableSection, setTimetableSection] = useState<string | null>(null);
+
+  // Initialise from user.settings so the section is restored after login
+  const [timetableSection, setTimetableSection] = useState<string | null>(
+    user?.settings?.timetable_section ?? null
+  );
+  const [availableSections, setAvailableSections] = useState<string[]>(
+    user?.settings?.available_sections ?? []
+  );
+
+  // Keep section state in sync if user object changes (e.g. after refresh)
+  useEffect(() => {
+    const s = user?.settings?.timetable_section;
+    if (s) setTimetableSection(s);
+    const avail = user?.settings?.available_sections;
+    if (avail && avail.length > 0) setAvailableSections(avail);
+  }, [user]);
 
   // Centralised Tasks state for instant synchronization across all dashboard panels
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -54,6 +69,15 @@ export function AppShell({ onLogout, user }: AppShellProps) {
     setModalView("upload-timetable");
   }
 
+  /** Open the class picker without re-uploading if sections are already stored */
+  function handleChangeClass() {
+    if (availableSections.length > 0) {
+      setModalView("change-class");
+    } else {
+      setModalView("upload-timetable");
+    }
+  }
+
   function handleBackFromModal() {
     setModalView(null);
   }
@@ -64,6 +88,16 @@ export function AppShell({ onLogout, user }: AppShellProps) {
       <UploadTimetable
         onComplete={handleTimetableComplete}
         onBack={handleBackFromModal}
+      />
+    );
+  }
+
+  if (modalView === "change-class") {
+    return (
+      <UploadTimetable
+        onComplete={handleTimetableComplete}
+        onBack={handleBackFromModal}
+        preloadedSections={availableSections}
       />
     );
   }
@@ -300,6 +334,9 @@ export function AppShell({ onLogout, user }: AppShellProps) {
           tasks={tasks}
           onLogout={onLogout}
           onNavigateTimetable={handleNavigateTimetable}
+          availableSections={availableSections}
+          currentSection={timetableSection}
+          onChangeSection={handleChangeClass}
         />
       )}
 

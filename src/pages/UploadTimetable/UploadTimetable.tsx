@@ -1,20 +1,33 @@
 import { useState, useRef, useEffect } from "react";
+import { timetableApi } from "../../api";
+import { ApiClientError } from "../../api";
 
 type TimetableFlowStep = "upload" | "processing" | "choose-class" | "imported";
 
 interface UploadTimetableProps {
   onComplete: (section: string) => void;
   onBack: () => void;
+  /** Pre-loaded sections list — when set, skip directly to choose-class step */
+  preloadedSections?: string[];
 }
 
 // ─── Step 1: Upload ───────────────────────────────────────────────────────────
-function UploadStep({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
+function UploadStep({
+  onNext,
+  onBack,
+  onFileSelected,
+}: {
+  onNext: () => void;
+  onBack: () => void;
+  onFileSelected: (file: File) => void;
+}) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
 
   function handleFile(file: File) {
     setSelectedFile(file);
+    onFileSelected(file);
   }
 
   function handleDrop(e: React.DragEvent) {
@@ -137,34 +150,65 @@ function UploadStep({ onNext, onBack }: { onNext: () => void; onBack: () => void
   );
 }
 
-// ─── Step 2: AI Processing ────────────────────────────────────────────────────
-function ProcessingStep({ onNext }: { onNext: () => void }) {
-  const [step, setStep] = useState(0);
+// ─── Step 2: AI Processing (real API call) ────────────────────────────────────
+function ProcessingStep({
+  file,
+  onNext,
+  onError,
+}: {
+  file: File;
+  onNext: (sections: string[]) => void;
+  onError: (msg: string) => void;
+}) {
+  const [stepIndex, setStepIndex] = useState(0);
   const steps = [
     "Reading PDF structure...",
     "Extracting timetable data...",
     "Identifying class sections...",
     "Parsing lecture slots...",
-    "Done! Found 4 class sections.",
   ];
 
-  // Auto-advance through steps
   useEffect(() => {
-    let i = 0;
-    let timeoutId: any;
-    const interval = setInterval(() => {
-      i++;
-      setStep(i);
-      if (i >= steps.length - 1) {
+    let cancelled = false;
+    let interval: ReturnType<typeof setInterval>;
+
+    // Animate through the first 3 steps while the API call is in flight
+    interval = setInterval(() => {
+      setStepIndex((prev) => {
+        if (prev < steps.length - 2) return prev + 1;
         clearInterval(interval);
-        timeoutId = setTimeout(onNext, 1000);
+        return prev;
+      });
+    }, 800);
+
+    async function doUpload() {
+      try {
+        const result = await timetableApi.upload(file);
+        if (!cancelled) {
+          setStepIndex(steps.length - 1); // Final step
+          setTimeout(() => {
+            if (!cancelled) onNext(result.sections);
+          }, 600);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          const msg =
+            err instanceof ApiClientError
+              ? err.message
+              : "Something went wrong while processing your PDF.";
+          onError(msg);
+        }
       }
-    }, 900);
+    }
+
+    doUpload();
+
     return () => {
+      cancelled = true;
       clearInterval(interval);
-      if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [onNext, steps.length]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [file]);
 
   return (
     <>
@@ -197,19 +241,28 @@ function ProcessingStep({ onNext }: { onNext: () => void }) {
             <div
               key={i}
               className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-500 ${
-                i <= step ? "opacity-100" : "opacity-20"
+                i <= stepIndex ? "opacity-100" : "opacity-20"
               }`}
             >
               <span
                 className="material-symbols-outlined text-[20px] flex-shrink-0"
                 style={{
-                  fontVariationSettings: i <= step ? "'FILL' 1" : "'FILL' 0",
-                  color: i === steps.length - 1 && i <= step ? "#10B981" : "#0051d5",
+                  fontVariationSettings: i <= stepIndex ? "'FILL' 1" : "'FILL' 0",
+                  color:
+                    i === steps.length - 1 && i <= stepIndex ? "#10B981" : "#0051d5",
                 }}
               >
-                {i < step ? "check_circle" : i === step ? "radio_button_checked" : "radio_button_unchecked"}
+                {i < stepIndex
+                  ? "check_circle"
+                  : i === stepIndex
+                  ? "radio_button_checked"
+                  : "radio_button_unchecked"}
               </span>
-              <span className={`text-[14px] font-medium ${i <= step ? "text-on-surface" : "text-on-surface-variant"}`}>
+              <span
+                className={`text-[14px] font-medium ${
+                  i <= stepIndex ? "text-on-surface" : "text-on-surface-variant"
+                }`}
+              >
                 {s}
               </span>
             </div>
@@ -220,17 +273,22 @@ function ProcessingStep({ onNext }: { onNext: () => void }) {
   );
 }
 
-// ─── Step 3: Choose Class ─────────────────────────────────────────────────────
-function ChooseClassStep({ onNext }: { onNext: (section: string) => void }) {
-  // TODO: Replace mock sections with data from backend timetable parsing API
-  //       when GET /api/student/timetable/sections (or similar) is implemented.
-  const MOCK_SECTIONS = ["BSCS-6A", "BSCS-6B", "BSSE-6", "BSAI-4", "BSCS-6C", "BSSE-7"];
 
+// ─── Step 3: Choose Class ─────────────────────────────────────────────────────
+function ChooseClassStep({
+  sections,
+  onNext,
+}: {
+  sections: string[];
+  onNext: (section: string) => void;
+}) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [selectError, setSelectError] = useState<string | null>(null);
 
-  const filtered = MOCK_SECTIONS.filter((s) =>
+  const filtered = sections.filter((s) =>
     s.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -238,7 +296,26 @@ function ChooseClassStep({ onNext }: { onNext: (section: string) => void }) {
     if (section.startsWith("BSCS")) return "BS Computer Science";
     if (section.startsWith("BSSE")) return "BS Software Engineering";
     if (section.startsWith("BSAI")) return "BS Artificial Intelligence";
+    if (section.startsWith("BSDS")) return "BS Data Science";
+    if (section.startsWith("BSIT")) return "BS Information Technology";
     return "BS Program";
+  }
+
+  async function handleContinue() {
+    if (!selected) return;
+    setIsSelecting(true);
+    setSelectError(null);
+    try {
+      await timetableApi.selectSection(selected);
+      onNext(selected);
+    } catch (err) {
+      const msg =
+        err instanceof ApiClientError
+          ? err.message
+          : "Failed to save your section. Please try again.";
+      setSelectError(msg);
+      setIsSelecting(false);
+    }
   }
 
   return (
@@ -263,7 +340,7 @@ function ChooseClassStep({ onNext }: { onNext: (section: string) => void }) {
             </div>
             <h2 className="text-[20px] font-bold text-primary mb-2">Timetable Successfully Processed</h2>
             <p className="text-[14px] text-on-surface-variant">
-              We found {MOCK_SECTIONS.length} classes in your timetable. Select yours to personalize DueMate.
+              We found <strong>{sections.length}</strong> class{sections.length !== 1 ? "es" : ""} in your timetable. Select yours to personalize DueMate.
             </p>
           </div>
         </section>
@@ -291,7 +368,6 @@ function ChooseClassStep({ onNext }: { onNext: (section: string) => void }) {
 
             {isOpen && (
               <div className="absolute top-16 left-0 w-full z-40 neumorphic-raised rounded-2xl overflow-hidden">
-                {/* Search within dropdown */}
                 <div className="p-3 border-b border-white/20">
                   <input
                     className="w-full bg-transparent text-[14px] text-on-surface placeholder:text-outline/60 focus:outline-none"
@@ -311,6 +387,7 @@ function ChooseClassStep({ onNext }: { onNext: (section: string) => void }) {
                         setSelected(section);
                         setIsOpen(false);
                         setSearch("");
+                        setSelectError(null);
                       }}
                     >
                       {section}
@@ -324,6 +401,16 @@ function ChooseClassStep({ onNext }: { onNext: (section: string) => void }) {
             )}
           </div>
         </section>
+
+        {/* Error message */}
+        {selectError && (
+          <section>
+            <div className="neumorphic-inset rounded-xl p-4 flex items-center gap-3">
+              <span className="material-symbols-outlined text-danger text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
+              <p className="text-[13px] text-danger font-medium">{selectError}</p>
+            </div>
+          </section>
+        )}
 
         {/* Preview Card */}
         {selected && (
@@ -350,12 +437,21 @@ function ChooseClassStep({ onNext }: { onNext: (section: string) => void }) {
       {/* Bottom CTA */}
       <div className="fixed md:absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] md:max-w-full p-6 bg-background-base md:rounded-b-[32px]">
         <button
-          disabled={!selected}
-          onClick={() => selected && onNext(selected)}
+          disabled={!selected || isSelecting}
+          onClick={handleContinue}
           className="w-full h-16 bg-secondary text-white rounded-2xl font-bold text-[18px] flex items-center justify-center gap-3 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-[6px_6px_12px_rgba(0,81,213,0.3)]"
         >
-          Continue
-          <span className="material-symbols-outlined">arrow_forward</span>
+          {isSelecting ? (
+            <>
+              <span className="material-symbols-outlined animate-spin">progress_activity</span>
+              Saving...
+            </>
+          ) : (
+            <>
+              Continue
+              <span className="material-symbols-outlined">arrow_forward</span>
+            </>
+          )}
         </button>
       </div>
     </>
@@ -421,22 +517,65 @@ function ImportedStep({ section, onDone }: { section: string; onDone: () => void
 }
 
 // ─── Orchestrator ─────────────────────────────────────────────────────────────
-export function UploadTimetable({ onComplete, onBack }: UploadTimetableProps) {
-  const [step, setStep] = useState<TimetableFlowStep>("upload");
+export function UploadTimetable({ onComplete, onBack, preloadedSections }: UploadTimetableProps) {
+  // If preloadedSections is provided (from Profile "Change Class"), skip upload/processing
+  const [step, setStep] = useState<TimetableFlowStep>(
+    preloadedSections && preloadedSections.length > 0 ? "choose-class" : "upload"
+  );
   const [selectedSection, setSelectedSection] = useState<string>("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [detectedSections, setDetectedSections] = useState<string[]>(
+    preloadedSections ?? []
+  );
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
+  function handleError(msg: string) {
+    setErrorMessage(msg);
+    setStep("upload"); // go back to upload with error displayed
+  }
 
   return (
     <div className="max-w-[390px] md:max-w-2xl mx-auto min-h-screen md:min-h-0 bg-background-base md:my-12 md:neumorphic-raised md:rounded-[32px] relative flex flex-col">
-      {step === "upload" && <UploadStep onNext={() => setStep("processing")} onBack={onBack} />}
-      {step === "processing" && <ProcessingStep onNext={() => setStep("choose-class")} />}
+      {/* Error banner (shown above upload step if processing failed) */}
+      {step === "upload" && errorMessage && (
+        <div className="mx-6 mt-4 p-4 bg-danger/10 border border-danger/20 rounded-2xl flex items-start gap-3">
+          <span className="material-symbols-outlined text-danger text-[20px] flex-shrink-0 mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
+          <p className="text-[13px] text-danger font-medium">{errorMessage}</p>
+        </div>
+      )}
+
+      {step === "upload" && (
+        <UploadStep
+          onNext={() => {
+            setErrorMessage("");
+            setStep("processing");
+          }}
+          onBack={onBack}
+          onFileSelected={setSelectedFile}
+        />
+      )}
+
+      {step === "processing" && selectedFile && (
+        <ProcessingStep
+          file={selectedFile}
+          onNext={(sections) => {
+            setDetectedSections(sections);
+            setStep("choose-class");
+          }}
+          onError={handleError}
+        />
+      )}
+
       {step === "choose-class" && (
         <ChooseClassStep
+          sections={detectedSections}
           onNext={(section) => {
             setSelectedSection(section);
             setStep("imported");
           }}
         />
       )}
+
       {step === "imported" && (
         <ImportedStep section={selectedSection} onDone={() => onComplete(selectedSection)} />
       )}

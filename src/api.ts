@@ -58,6 +58,17 @@ const ERROR_MESSAGES: Record<string, string> = {
   // Generic
   internal_error: "Something went wrong. Please try again.",
   network_error: "Unable to connect. Check your internet connection.",
+
+  // Timetable errors
+  no_file: "No file was provided. Please select a PDF.",
+  empty_file: "The selected file appears to be empty.",
+  file_too_large: "The PDF is too large. Maximum size is 20 MB.",
+  invalid_pdf: "This file could not be opened as a PDF.",
+  unsupported_layout: "This PDF doesn't look like a supported Riphah timetable. Please upload the official grid-format timetable PDF.",
+  no_sections_found: "No class sections were found in this PDF.",
+  timetable_parse_failed: "We couldn't parse the timetable. Please check it is a supported Riphah grid-format PDF.",
+  no_timetable_uploaded: "No timetable uploaded yet. Please upload a PDF first.",
+  invalid_section: "That section was not found in your timetable.",
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -451,12 +462,50 @@ export const courseMappingsApi = {
 
 export const timetableApi = {
   /**
-   * Fetch the full student timetable from the backend RAG data.
+   * Fetch the authenticated user's active timetable (selected section only).
+   * Returns an empty array if no timetable has been uploaded/selected.
    */
   async get(): Promise<TimetableData> {
     return apiRequest<TimetableData>("/api/student/timetable", {
       method: "GET",
     });
+  },
+
+  /**
+   * Upload a timetable PDF and parse all sections.
+   * Uses raw fetch (not apiRequest) because multipart/form-data must not
+   * have Content-Type set manually — the browser sets it with the boundary.
+   */
+  async upload(file: File): Promise<{ sections: string[] }> {
+    const { accessToken } = getAuthTokens();
+    const form = new FormData();
+    form.append("file", file);
+
+    let response: Response;
+    try {
+      response = await fetch(`${API_BASE_URL}/api/student/timetable/upload`, {
+        method: "POST",
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+        body: form,
+      });
+    } catch {
+      throw new ApiClientError("network_error", ERROR_MESSAGES.network_error);
+    }
+
+    return handleResponse<{ sections: string[] }>(response);
+  },
+
+  /**
+   * Select the user's active section from a previously uploaded PDF.
+   * No re-upload required.
+   */
+  async selectSection(
+    section: string
+  ): Promise<{ section: string; slots: number }> {
+    return apiRequest<{ section: string; slots: number }>(
+      "/api/student/timetable/select",
+      { method: "POST", body: { section } }
+    );
   },
 };
 

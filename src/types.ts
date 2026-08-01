@@ -20,6 +20,8 @@ export interface User {
 
 export interface UserSettings {
   reminder_hours_before: number;
+  timetable_section?: string | null;
+  available_sections?: string[];
 }
 
 export interface PushSubscription {
@@ -263,6 +265,8 @@ export interface CourseMapping {
 export interface TimetableSlot {
   day: string;
   time: string;
+  start_time?: string;
+  end_time?: string;
   course: string;
   room?: string;
   teacher?: string;
