@@ -353,11 +353,7 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
                   upcomingInfo.isLive ? "text-success" : "text-secondary"
                 }`}
               >
-                {upcomingInfo.isLive
-                  ? "Currently in Progress"
-                  : upcomingInfo.slotDay !== currentPKTDay
-                    ? `Next Class • ${DAY_FULL[upcomingInfo.slotDay]}`
-                    : "Next Class"}
+                Next Class - {DAY_FULL[upcomingInfo.slotDay]}
               </p>
               <h3 className="text-[18px] font-bold text-primary mb-2">{upcomingInfo.slot.course}</h3>
               <div className="grid grid-cols-2 gap-y-1">
