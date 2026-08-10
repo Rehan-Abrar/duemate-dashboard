@@ -124,6 +124,67 @@ function getPKTMinutes(): number {
   return pkt.getHours() * 60 + pkt.getMinutes();
 }
 
+/**
+ * Get the current PKT day as a DAYS abbreviation (Mon, Tue, etc.).
+ */
+function getCurrentPKTDayAbbr(): string {
+  const now = new Date();
+  const pktOffsetMs = 5 * 60 * 60 * 1000;
+  const localOffsetMs = now.getTimezoneOffset() * 60 * 1000;
+  const pkt = new Date(now.getTime() + localOffsetMs + pktOffsetMs);
+  const jsDay = pkt.getDay();
+  return DAYS[JS_DAY_TO_IDX[jsDay] ?? 0];
+}
+
+/**
+ * Find the next upcoming class across ALL days based on current PKT day + time.
+ * Scans today first (live class, then upcoming), then wraps to subsequent days.
+ */
+function getNextUpcomingClass(
+  allSlots: TimetableSlot[],
+  nowMinutes: number,
+  currentDayAbbr: string
+): { slot: TimetableSlot; slotDay: string; isLive: boolean } | null {
+  const currentIdx = DAYS.indexOf(currentDayAbbr);
+  if (currentIdx < 0) return null;
+
+  // Check today: live class first, then upcoming
+  const todaySlots = sortSlots(
+    allSlots.filter((s) =>
+      DAY_MAP[currentDayAbbr]?.some((d) => s.day?.toLowerCase() === d.toLowerCase())
+    )
+  );
+
+  const liveToday = todaySlots.find((s) => {
+    const start = parseTimeToMinutes(s.start_time ?? s.time?.split("-")[0] ?? "");
+    const end = parseTimeToMinutes(s.end_time ?? s.time?.split("-")[1] ?? "");
+    return start >= 0 && end > start && start <= nowMinutes && nowMinutes < end;
+  });
+  if (liveToday) return { slot: liveToday, slotDay: currentDayAbbr, isLive: true };
+
+  const upcomingToday = todaySlots.find((s) => {
+    const start = parseTimeToMinutes(s.start_time ?? s.time?.split("-")[0] ?? "");
+    return start > nowMinutes;
+  });
+  if (upcomingToday) return { slot: upcomingToday, slotDay: currentDayAbbr, isLive: false };
+
+  // All today's classes passed — scan subsequent days (wrap around)
+  for (let i = 1; i < DAYS.length; i++) {
+    const nextIdx = (currentIdx + i) % DAYS.length;
+    const nextDay = DAYS[nextIdx];
+    const nextDaySlots = sortSlots(
+      allSlots.filter((s) =>
+        DAY_MAP[nextDay]?.some((d) => s.day?.toLowerCase() === d.toLowerCase())
+      )
+    );
+    if (nextDaySlots.length > 0) {
+      return { slot: nextDaySlots[0], slotDay: nextDay, isLive: false };
+    }
+  }
+
+  return null;
+}
+
 function formatTime12(t: string): string {
   const mins = parseTimeToMinutes(t);
   if (mins < 0) return t;
@@ -197,9 +258,9 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
     return start > nowMinutes;
   });
 
-  // Prominent slot: live > next > null
-  const prominentSlot = liveClass ?? nextClass ?? null;
-  const prominentIsLive = !!liveClass;
+  // Global next upcoming class: based on current PKT day + time, independent of selected day
+  const currentPKTDay = getCurrentPKTDayAbbr();
+  const upcomingInfo = getNextUpcomingClass(slots, nowMinutes, currentPKTDay);
 
   // Date for selected day
   const selectedDate = getDateForDay(selectedDay);
@@ -278,6 +339,52 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
             <p className="text-[14px] text-outline">{dateLabel}</p>
           </section>
 
+          {/* Next Class card — always based on current PKT day + time, independent of selected day */}
+          {!loading && !error && upcomingInfo && (
+            <section
+              className={`rounded-[20px] p-5 border-l-4 ${
+                upcomingInfo.isLive
+                  ? "bg-success/5 border-success"
+                  : "neumorphic-raised border-secondary"
+              }`}
+            >
+              <p
+                className={`text-[11px] font-bold uppercase tracking-widest mb-1 ${
+                  upcomingInfo.isLive ? "text-success" : "text-secondary"
+                }`}
+              >
+                {upcomingInfo.isLive
+                  ? "Currently in Progress"
+                  : upcomingInfo.slotDay !== currentPKTDay
+                    ? `Next Class • ${DAY_FULL[upcomingInfo.slotDay]}`
+                    : "Next Class"}
+              </p>
+              <h3 className="text-[18px] font-bold text-primary mb-2">{upcomingInfo.slot.course}</h3>
+              <div className="grid grid-cols-2 gap-y-1">
+                <div className="flex items-center gap-1.5 text-on-surface-variant">
+                  <span className="material-symbols-outlined text-[16px]">schedule</span>
+                  <span className="text-[13px]">
+                    {formatTime12(upcomingInfo.slot.start_time ?? upcomingInfo.slot.time?.split("-")[0] ?? "")}
+                    {" – "}
+                    {formatTime12(upcomingInfo.slot.end_time ?? upcomingInfo.slot.time?.split("-")[1] ?? "")}
+                  </span>
+                </div>
+                {upcomingInfo.slot.room && (
+                  <div className="flex items-center gap-1.5 text-on-surface-variant">
+                    <span className="material-symbols-outlined text-[16px]">location_on</span>
+                    <span className="text-[13px]">{upcomingInfo.slot.room}</span>
+                  </div>
+                )}
+                {upcomingInfo.slot.teacher && (
+                  <div className="flex items-center gap-1.5 text-on-surface-variant col-span-2">
+                    <span className="material-symbols-outlined text-[16px]">person</span>
+                    <span className="text-[13px]">{upcomingInfo.slot.teacher}</span>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+
           {/* Day selector */}
           <section className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             {DAYS.map((d) => (
@@ -294,48 +401,6 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
               </button>
             ))}
           </section>
-
-          {/* Fix #4/#5: Prominent live / next class card */}
-          {!loading && !error && prominentSlot && (
-            <section
-              className={`rounded-[20px] p-5 border-l-4 ${
-                prominentIsLive
-                  ? "bg-success/5 border-success"
-                  : "neumorphic-raised border-secondary"
-              }`}
-            >
-              <p
-                className={`text-[11px] font-bold uppercase tracking-widest mb-1 ${
-                  prominentIsLive ? "text-success" : "text-secondary"
-                }`}
-              >
-                {prominentIsLive ? "Currently in Progress" : "Next Class"}
-              </p>
-              <h3 className="text-[18px] font-bold text-primary mb-2">{prominentSlot.course}</h3>
-              <div className="grid grid-cols-2 gap-y-1">
-                <div className="flex items-center gap-1.5 text-on-surface-variant">
-                  <span className="material-symbols-outlined text-[16px]">schedule</span>
-                  <span className="text-[13px]">
-                    {formatTime12(prominentSlot.start_time ?? prominentSlot.time?.split("-")[0] ?? "")}
-                    {" – "}
-                    {formatTime12(prominentSlot.end_time ?? prominentSlot.time?.split("-")[1] ?? "")}
-                  </span>
-                </div>
-                {prominentSlot.room && (
-                  <div className="flex items-center gap-1.5 text-on-surface-variant">
-                    <span className="material-symbols-outlined text-[16px]">location_on</span>
-                    <span className="text-[13px]">{prominentSlot.room}</span>
-                  </div>
-                )}
-                {prominentSlot.teacher && (
-                  <div className="flex items-center gap-1.5 text-on-surface-variant col-span-2">
-                    <span className="material-symbols-outlined text-[16px]">person</span>
-                    <span className="text-[13px]">{prominentSlot.teacher}</span>
-                  </div>
-                )}
-              </div>
-            </section>
-          )}
 
           {/* No more classes empty state (today only, after all classes are done) */}
           {!loading && !error && isToday && noMoreClassesToday && (
