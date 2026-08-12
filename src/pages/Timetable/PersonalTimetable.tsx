@@ -214,8 +214,39 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
   const [slots, setSlots] = useState<TimetableSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [, setTick] = useState(0); // force re-render for live class detection
+
+  async function handleShareSchedule() {
+    if (sharing) return;
+    setSharing(true);
+    try {
+      const blob = await timetableApi.downloadImage();
+      const file = new File([blob], `duemate_schedule_${section}.png`, { type: "image/png" });
+
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: `${section} — Weekly Schedule`,
+          text: `My ${section} timetable from DueMate`,
+        });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `duemate_schedule_${section}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      console.error("Failed to share schedule image:", err);
+    } finally {
+      setSharing(false);
+    }
+  }
 
   useEffect(() => {
     async function load() {
@@ -544,18 +575,25 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
             <h2 className="text-[20px] font-bold text-primary">Quick Actions</h2>
             <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
               {[
-                { icon: "upload_file", label: "Upload New", action: onUploadNew },
-                { icon: "psychology", label: "Ask AI", action: onAskAI },
-                { icon: "share", label: "Share Schedule", action: () => {} },
+                { icon: "upload_file", label: "Upload New", action: onUploadNew, isShare: false },
+                { icon: "psychology", label: "Ask AI", action: onAskAI, isShare: false },
+                { icon: "share", label: "Share Schedule", action: handleShareSchedule, isShare: true },
               ].map((action) => (
                 <button
                   key={action.label}
                   onClick={action.action}
-                  className="neumorphic-button-secondary p-4 min-w-[140px] rounded-[20px] flex flex-col items-center gap-2 active:scale-95 transition-all"
+                  disabled={action.isShare && sharing}
+                  className={`neumorphic-button-secondary p-4 min-w-[140px] rounded-[20px] flex flex-col items-center gap-2 active:scale-95 transition-all ${
+                    action.isShare && sharing ? "opacity-60 pointer-events-none" : ""
+                  }`}
                 >
-                  <span className="material-symbols-outlined text-secondary">{action.icon}</span>
+                  {action.isShare && sharing ? (
+                    <RoundSpinner size="sm" color="blue" />
+                  ) : (
+                    <span className="material-symbols-outlined text-secondary">{action.icon}</span>
+                  )}
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-center">
-                    {action.label}
+                    {action.isShare && sharing ? "Generating..." : action.label}
                   </span>
                 </button>
               ))}

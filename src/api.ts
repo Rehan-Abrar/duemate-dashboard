@@ -507,6 +507,33 @@ export const timetableApi = {
       { method: "POST", body: { section } }
     );
   },
+
+  /**
+   * Download the timetable as a PNG image.
+   * Returns a Blob containing the image data.
+   */
+  async downloadImage(): Promise<Blob> {
+    const { accessToken } = getAuthTokens();
+    let response: Response;
+    try {
+      response = await fetch(`${API_BASE_URL}/api/student/timetable/image`, {
+        method: "GET",
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+      });
+    } catch {
+      throw new ApiClientError("network_error", ERROR_MESSAGES.network_error);
+    }
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new ApiClientError(
+        data.error || "unknown_error",
+        data.detail || ERROR_MESSAGES.unknown_error
+      );
+    }
+
+    return response.blob();
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
