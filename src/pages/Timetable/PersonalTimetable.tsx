@@ -207,6 +207,17 @@ function programName(section: string): string {
   return "BS Program";
 }
 
+function triggerBlobDownload(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTimetableProps) {
   // Default to today's weekday in PKT
   const pktDayIdx = JS_DAY_TO_IDX[new Date().getDay()] ?? 0;
@@ -215,6 +226,7 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [, setTick] = useState(0); // force re-render for live class detection
 
@@ -232,19 +244,25 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
           text: `My ${section} timetable from DueMate`,
         });
       } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `duemate_schedule_${section}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        triggerBlobDownload(blob, `duemate_schedule_${section}.png`);
       }
     } catch (err) {
       console.error("Failed to share schedule image:", err);
     } finally {
       setSharing(false);
+    }
+  }
+
+  async function handleDownloadSchedule() {
+    if (downloading) return;
+    setDownloading(true);
+    try {
+      const blob = await timetableApi.downloadImage();
+      triggerBlobDownload(blob, "my-timetable.png");
+    } catch (err) {
+      console.error("Failed to download schedule image:", err);
+    } finally {
+      setDownloading(false);
     }
   }
 
@@ -575,25 +593,26 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
             <h2 className="text-[20px] font-bold text-primary">Quick Actions</h2>
             <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
               {[
-                { icon: "upload_file", label: "Upload New", action: onUploadNew, isShare: false },
-                { icon: "psychology", label: "Ask AI", action: onAskAI, isShare: false },
-                { icon: "share", label: "Share Schedule", action: handleShareSchedule, isShare: true },
+                { icon: "upload_file", label: "Upload New", action: onUploadNew, busy: false, busyLabel: "" },
+                { icon: "psychology", label: "Ask AI", action: onAskAI, busy: false, busyLabel: "" },
+                { icon: "share", label: "Share Schedule", action: handleShareSchedule, busy: sharing, busyLabel: "Generating..." },
+                { icon: "download", label: "Download Schedule", action: handleDownloadSchedule, busy: downloading, busyLabel: "Generating..." },
               ].map((action) => (
                 <button
                   key={action.label}
                   onClick={action.action}
-                  disabled={action.isShare && sharing}
+                  disabled={action.busy}
                   className={`neumorphic-button-secondary p-4 min-w-[140px] rounded-[20px] flex flex-col items-center gap-2 active:scale-95 transition-all ${
-                    action.isShare && sharing ? "opacity-60 pointer-events-none" : ""
+                    action.busy ? "opacity-60 pointer-events-none" : ""
                   }`}
                 >
-                  {action.isShare && sharing ? (
+                  {action.busy ? (
                     <RoundSpinner size="sm" color="blue" />
                   ) : (
                     <span className="material-symbols-outlined text-secondary">{action.icon}</span>
                   )}
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-center">
-                    {action.isShare && sharing ? "Generating..." : action.label}
+                    {action.busy ? action.busyLabel : action.label}
                   </span>
                 </button>
               ))}
