@@ -24,9 +24,9 @@ export function WhatsAppActivation({
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center w-full bg-[#EAF0F8]">
+    <div className="min-h-screen flex flex-col items-center w-full bg-[#F6F4F0]">
       {/* Top AppBar Component */}
-      <header className="fixed top-0 w-full h-16 flex items-center justify-between px-6 z-50 bg-[#EAF0F8]/80 backdrop-blur-md">
+      <header className="fixed top-0 w-full h-16 flex items-center justify-between px-6 z-50 bg-[#F6F4F0]/80 backdrop-blur-md">
         <button
           onClick={onBack}
           className="flex items-center gap-1.5 text-deep-navy font-semibold hover:opacity-80 transition-all"

@@ -22,6 +22,36 @@ export interface UserSettings {
   reminder_hours_before: number;
   timetable_section?: string | null;
   available_sections?: string[];
+  /** Academic identity — used to resolve the official (admin-published) timetable. */
+  university_id?: string | null;
+  academic_term?: string | null;
+  program?: string | null;
+  semester?: number | null;
+}
+
+// ── Official timetable discovery (onboarding) ──────────────────────────────────
+
+export interface TimetableTermOption {
+  academic_term: string;
+  sections: string[];
+}
+
+export interface TimetableUniversityOption {
+  university_id: string;
+  terms: TimetableTermOption[];
+}
+
+export interface TimetableOptionsResponse {
+  items: TimetableUniversityOption[];
+  count: number;
+}
+
+export interface TimetableAvailableResponse {
+  available: boolean;
+  timetable_id?: string;
+  version?: number;
+  university_id?: string;
+  academic_term?: string;
 }
 
 export interface PushSubscription {

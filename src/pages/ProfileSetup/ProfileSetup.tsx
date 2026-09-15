@@ -91,7 +91,7 @@ export function ProfileSetup({ onComplete, onSkip }: ProfileSetupProps) {
                 </label>
                 <input
                   id="profile-full-name"
-                  className="w-full h-14 px-5 rounded-xl neumorphic-inset border-none focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 text-[18px] font-medium placeholder:text-outline/50 bg-[#EAF0F8] disabled:opacity-50"
+                  className="w-full h-14 px-5 rounded-xl neumorphic-inset border-none focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 text-[18px] font-medium placeholder:text-outline/50 bg-[#F6F4F0] disabled:opacity-50"
                   placeholder="Enter your name"
                   type="text"
                   autoComplete="name"

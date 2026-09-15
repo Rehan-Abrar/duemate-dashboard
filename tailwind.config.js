@@ -9,8 +9,8 @@ export default {
       // Stitch design tokens — used by class names in onboarding screens
       colors: {
         primary:         "#0F172A",
-        "surface-neu":   "#EAF0F8",
-        "surface-neumorphic": "#EAF0F8",
+        "surface-neu":   "#F6F4F0",
+        "surface-neumorphic": "#F6F4F0",
         "deep-navy":     "#0F172A",
         "electric-blue": "#2563EB",
         "text-secondary":"#64748B",
@@ -18,7 +18,7 @@ export default {
         outline:         "#76777d",
         "outline-variant":"#c6c6cd",
         "highlight-soft": "#DCE8FF",
-        "background-base":"#EAF0F8",
+        "background-base":"#F6F4F0",
         "on-surface":    "#1b1b1d",
         "on-secondary-container": "#fefcff",
         success:         "#10B981",
@@ -27,7 +27,7 @@ export default {
         /* Aliases for classes already used in pages — map to the live palette */
         "on-surface-variant": "#64748B",
         "surface-container-high": "#DFE7F2",
-        "surface-container-low": "#EAF0F8",
+        "surface-container-low": "#F6F4F0",
         "secondary-container": "#2563EB",
         "secondary-fixed-dim": "#DCE8FF",
         "on-secondary-fixed-variant": "#1D4ED8",
@@ -39,7 +39,7 @@ export default {
           raise:   "#fdfcfa",
         },
         cool: {
-          DEFAULT: "#eaf0f8",
+          DEFAULT: "#f6f4f0",
           deep:    "#e0e8f3",
           raise:   "#f2f6fb",
         },

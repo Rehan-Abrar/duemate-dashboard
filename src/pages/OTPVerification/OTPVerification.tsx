@@ -121,11 +121,11 @@ export function OTPVerification({ phoneNumber, onBack, onSuccess }: OTPVerificat
   };
 
   return (
-    <div className="flex justify-center min-h-screen bg-[#EAF0F8] md:items-center">
+    <div className="flex justify-center min-h-screen bg-[#F6F4F0] md:items-center">
       {/* Container */}
-      <div className="w-full max-w-md md:max-w-lg min-h-screen md:min-h-0 flex flex-col bg-[#EAF0F8] relative pb-8 text-left md:neumorphic-raised md:rounded-[32px] md:p-4">
+      <div className="w-full max-w-md md:max-w-lg min-h-screen md:min-h-0 flex flex-col bg-[#F6F4F0] relative pb-8 text-left md:neumorphic-raised md:rounded-[32px] md:p-4">
         {/* Header */}
-        <header className="w-full h-16 flex items-center justify-between px-6 md:px-2 sticky top-0 bg-[#EAF0F8]/80 backdrop-blur-md z-50 md:relative md:bg-transparent md:backdrop-blur-none">
+        <header className="w-full h-16 flex items-center justify-between px-6 md:px-2 sticky top-0 bg-[#F6F4F0]/80 backdrop-blur-md z-50 md:relative md:bg-transparent md:backdrop-blur-none">
           <div className="flex items-center gap-2">
             <button
               onClick={onBack}
@@ -186,7 +186,7 @@ export function OTPVerification({ phoneNumber, onBack, onSuccess }: OTPVerificat
               </div>
             )}
 
-            <section className="mt-6 neumorphic-raised bg-[#EAF0F8] rounded-2xl p-4 sm:p-6">
+            <section className="mt-6 neumorphic-raised bg-[#F6F4F0] rounded-2xl p-4 sm:p-6">
               <p id="otp-label" className="sr-only">
                 Six-digit verification code
               </p>
@@ -200,7 +200,7 @@ export function OTPVerification({ phoneNumber, onBack, onSuccess }: OTPVerificat
                   <input
                     key={index}
                     ref={(el) => (inputRefs.current[index] = el)}
-                    className="otp-input min-w-0 flex-1 max-w-12 aspect-[11/14] h-12 sm:h-14 bg-[#EAF0F8] border-none rounded-xl text-center text-lg sm:text-xl font-bold text-deep-navy neumorphic-inset focus:ring-2 focus:ring-secondary transition-all"
+                    className="otp-input min-w-0 flex-1 max-w-12 aspect-[11/14] h-12 sm:h-14 bg-[#F6F4F0] border-none rounded-xl text-center text-lg sm:text-xl font-bold text-deep-navy neumorphic-inset focus:ring-2 focus:ring-secondary transition-all"
                     maxLength={1}
                     pattern="\d*"
                     type="text"
@@ -262,7 +262,7 @@ export function OTPVerification({ phoneNumber, onBack, onSuccess }: OTPVerificat
 
           {/* Support / Info Card */}
           <section className="mt-auto pt-8">
-            <div className="neumorphic-raised bg-[#EAF0F8]/50 p-5 rounded-2xl flex gap-4 items-start border border-white/40">
+            <div className="neumorphic-raised bg-[#F6F4F0]/50 p-5 rounded-2xl flex gap-4 items-start border border-white/40">
               <div className="bg-[#DCE8FF] p-2 rounded-xl">
                 <span
                   className="material-symbols-outlined text-electric-blue"

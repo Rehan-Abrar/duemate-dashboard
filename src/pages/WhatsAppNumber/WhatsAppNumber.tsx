@@ -46,9 +46,9 @@ export function WhatsAppNumber({ onBack, onNext }: WhatsAppNumberProps) {
   };
 
   return (
-    <div className="flex justify-center min-h-screen bg-[#EAF0F8]">
+    <div className="flex justify-center min-h-screen bg-[#F6F4F0]">
       {/* Responsive Container */}
-      <main className="w-full max-w-md md:max-w-4xl min-h-screen md:min-h-0 flex flex-col relative bg-[#EAF0F8] text-left md:flex-row md:items-center md:gap-12 md:py-12">
+      <main className="w-full max-w-md md:max-w-4xl min-h-screen md:min-h-0 flex flex-col relative bg-[#F6F4F0] text-left md:flex-row md:items-center md:gap-12 md:py-12">
         {/* Left Side: Visual / Branding (Desktop Only) */}
         <div className="hidden md:flex flex-col items-center justify-center w-1/2 p-8">
           <div className="w-48 h-48 rounded-full bg-[#2563EB]/10 absolute orb-pulse blur-2xl"></div>
@@ -59,7 +59,7 @@ export function WhatsAppNumber({ onBack, onNext }: WhatsAppNumberProps) {
             >
               smart_toy
             </span>
-            <div className="absolute -top-2 -right-2 w-10 h-10 bg-[#10B981] rounded-full border-[6px] border-[#EAF0F8] flex items-center justify-center">
+            <div className="absolute -top-2 -right-2 w-10 h-10 bg-[#10B981] rounded-full border-[6px] border-[#F6F4F0] flex items-center justify-center">
               <span className="material-symbols-outlined text-white text-[16px] font-bold">check</span>
             </div>
           </div>
@@ -72,7 +72,7 @@ export function WhatsAppNumber({ onBack, onNext }: WhatsAppNumberProps) {
         {/* Right Side: Form Area */}
         <div className="flex-1 flex flex-col w-full md:max-w-[440px] md:neumorphic-raised md:rounded-[32px] md:p-8">
           {/* TopAppBar */}
-          <header className="flex justify-between items-center px-6 md:px-0 h-16 w-full z-50 sticky top-0 md:relative bg-[#EAF0F8]/80 md:bg-transparent backdrop-blur-md md:backdrop-blur-none md:mb-6">
+          <header className="flex justify-between items-center px-6 md:px-0 h-16 w-full z-50 sticky top-0 md:relative bg-[#F6F4F0]/80 md:bg-transparent backdrop-blur-md md:backdrop-blur-none md:mb-6">
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -177,7 +177,7 @@ export function WhatsAppNumber({ onBack, onNext }: WhatsAppNumberProps) {
               >
                 smart_toy
               </span>
-              <div className="absolute -top-1 -right-1 w-6 h-6 bg-[#10B981] rounded-full border-4 border-[#EAF0F8] flex items-center justify-center">
+              <div className="absolute -top-1 -right-1 w-6 h-6 bg-[#10B981] rounded-full border-4 border-[#F6F4F0] flex items-center justify-center">
                 <span className="material-symbols-outlined text-white text-[12px] font-bold">check</span>
               </div>
             </div>

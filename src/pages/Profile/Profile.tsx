@@ -6,11 +6,12 @@ interface ProfileProps {
   onLogout: () => void;
   onNavigateTimetable: () => void;
   availableSections?: string[];
+  hasOfficialSections?: boolean;
   currentSection?: string | null;
   onChangeSection?: () => void;
 }
 
-export function Profile({ user, tasks, onLogout, onNavigateTimetable, availableSections = [], currentSection, onChangeSection }: ProfileProps) {
+export function Profile({ user, tasks, onLogout, onNavigateTimetable, availableSections = [], hasOfficialSections = false, currentSection, onChangeSection }: ProfileProps) {
   const pendingCount = tasks.filter((t) => t.status !== "completed").length;
   // Read the name saved during ProfileSetup from localStorage
   const displayName = localStorage.getItem("duemate_user_name") || "Student";
@@ -113,7 +114,7 @@ export function Profile({ user, tasks, onLogout, onNavigateTimetable, availableS
               className="w-full py-3 neumorphic-button-secondary rounded-xl font-bold transition-all active:scale-95 flex items-center justify-center gap-2 text-secondary"
             >
               <span className="material-symbols-outlined text-sm">edit</span>
-              {availableSections.length > 0 ? "Change Selected Class" : "Select Class"}
+              {availableSections.length > 0 || hasOfficialSections || Boolean(user?.settings?.university_id) ? "Change Selected Class" : "Select Class"}
             </button>
 
             {/* Always allow full re-upload */}

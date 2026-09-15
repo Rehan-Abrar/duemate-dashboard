@@ -7,18 +7,20 @@ import { Profile } from "./Profile/Profile";
 import { UploadTimetable } from "./UploadTimetable/UploadTimetable";
 import { PersonalTimetable } from "./Timetable/PersonalTimetable";
 import { AddTaskModal } from "../components/AddTaskModal";
-import { tasksApi } from "../api";
+import { tasksApi, timetableApi } from "../api";
 import type { User, Task } from "../types";
+import { SectionSetup } from "./SectionSetup/SectionSetup";
 
 interface AppShellProps {
   onLogout: () => void;
   user: User;
+  onUserUpdated?: (user: User) => void;
 }
 
 type Tab = "home" | "tasks" | "calendar" | "timetable" | "assistant" | "profile";
-type ModalView = null | "upload-timetable" | "change-class";
+type ModalView = null | "upload-timetable" | "change-class" | "change-official-class";
 
-export function AppShell({ onLogout, user }: AppShellProps) {
+export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
   const [activeTab, setActiveTab] = useState<Tab>("home");
   const [modalView, setModalView] = useState<ModalView>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -30,6 +32,7 @@ export function AppShell({ onLogout, user }: AppShellProps) {
   const [availableSections, setAvailableSections] = useState<string[]>(
     user?.settings?.available_sections ?? []
   );
+  const [officialSections, setOfficialSections] = useState<string[]>([]);
 
   // Keep section state in sync if user object changes (e.g. after refresh)
   useEffect(() => {
@@ -38,6 +41,30 @@ export function AppShell({ onLogout, user }: AppShellProps) {
     const avail = user?.settings?.available_sections;
     if (avail && avail.length > 0) setAvailableSections(avail);
   }, [user]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await timetableApi.getOptions();
+        if (cancelled) return;
+        const sections = new Set<string>();
+        for (const uni of res.items || []) {
+          for (const term of uni.terms || []) {
+            for (const section of term.sections || []) {
+              sections.add(section);
+            }
+          }
+        }
+        setOfficialSections([...sections].sort());
+      } catch {
+        if (!cancelled) setOfficialSections([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.settings?.university_id]);
 
   // Centralised Tasks state for instant synchronization across all dashboard panels
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -65,13 +92,24 @@ export function AppShell({ onLogout, user }: AppShellProps) {
     setActiveTab("timetable");
   }
 
+  function handleOfficialClassChange(updatedUser: User) {
+    onUserUpdated?.(updatedUser);
+    const next = updatedUser?.settings?.timetable_section;
+    if (next) setTimetableSection(next);
+    setModalView(null);
+    setActiveTab("timetable");
+  }
+
   function handleNavigateTimetable() {
     setModalView("upload-timetable");
   }
 
-  /** Open the class picker without re-uploading if sections are already stored */
+  /** Official picker first; PDF class picker / upload only when no official timetable applies. */
   function handleChangeClass() {
-    if (availableSections.length > 0) {
+    const hasOfficialIdentity = Boolean(user?.settings?.university_id);
+    if (officialSections.length > 0 || hasOfficialIdentity) {
+      setModalView("change-official-class");
+    } else if (availableSections.length > 0) {
       setModalView("change-class");
     } else {
       setModalView("upload-timetable");
@@ -182,11 +220,11 @@ export function AppShell({ onLogout, user }: AppShellProps) {
         aria-modal="true"
         aria-label="Navigation"
         aria-hidden={!isDrawerOpen}
-        className={`md:hidden fixed inset-y-0 left-0 z-50 w-72 bg-[#EAF0F8] shadow-[8px_0_32px_rgba(15,23,42,0.15)] border-r border-white/80 transform transition-transform duration-300 ease-in-out flex flex-col ${
+        className={`md:hidden fixed inset-y-0 left-0 z-50 w-72 bg-[#F6F4F0] shadow-[8px_0_32px_rgba(15,23,42,0.15)] border-r border-white/80 transform transition-transform duration-300 ease-in-out flex flex-col ${
           isDrawerOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="p-6 flex flex-col h-full bg-[#EAF0F8]">
+        <div className="p-6 flex flex-col h-full bg-[#F6F4F0]">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg">
@@ -274,6 +312,15 @@ export function AppShell({ onLogout, user }: AppShellProps) {
           onBack={handleBackFromModal}
         />
       )}
+      {modalView === "change-official-class" && (
+        <SectionSetup
+          mode="change"
+          currentSection={timetableSection}
+          onBack={handleBackFromModal}
+          onDone={handleOfficialClassChange}
+          onNeedUpload={() => setModalView("upload-timetable")}
+        />
+      )}
       {modalView === "change-class" && (
         <UploadTimetable
           onComplete={handleTimetableComplete}
@@ -283,6 +330,7 @@ export function AppShell({ onLogout, user }: AppShellProps) {
       )}
       {!modalView && activeTab === "home" && (
         <Dashboard
+          key={timetableSection ?? "none"}
           tasks={tasks}
           loading={loadingTasks}
           onNavigate={(tab) => goToTab(tab as Tab)}
@@ -310,6 +358,7 @@ export function AppShell({ onLogout, user }: AppShellProps) {
       )}
       {!modalView && activeTab === "timetable" && (
         <PersonalTimetable
+          key={timetableSection ?? "none"}
           section={timetableSection}
           onUploadNew={() => setModalView("upload-timetable")}
           onAskAI={() => goToTab("assistant")}
@@ -323,6 +372,7 @@ export function AppShell({ onLogout, user }: AppShellProps) {
           onLogout={onLogout}
           onNavigateTimetable={handleNavigateTimetable}
           availableSections={availableSections}
+          hasOfficialSections={officialSections.length > 0}
           currentSection={timetableSection}
           onChangeSection={handleChangeClass}
         />

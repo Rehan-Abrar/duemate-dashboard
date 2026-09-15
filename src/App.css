@@ -1,6 +1,6 @@
 /* ============================================================
    DueMate — Global Styles (Stitch Neumorphic Design System)
-   Background: #EAF0F8 (Soft Cloud Blue)
+   Background: #F6F4F0 (Warm Paper)
    Primary:    #0F172A (Deep Navy)
    Accent:     #2563EB (Electric Blue)
    ============================================================ */
@@ -28,9 +28,9 @@
   --color-brand:           #2563EB;
   --color-brand-light:     #DCE8FF;
   --color-brand-dark:      #1D4ED8;
-  --color-surface:         #EAF0F8;
-  --color-surface-elevated:#EAF0F8;
-  --color-surface-hover:   #F1F5F9;
+  --color-surface:         #F6F4F0;
+  --color-surface-elevated:#F6F4F0;
+  --color-surface-hover:   #FDFCFA;
   --color-surface-active:  #DCE8FF;
   --color-text:            #0F172A;
   --color-text-muted:      #64748B;
@@ -44,14 +44,14 @@
   --color-overlay:         rgba(15, 23, 42, 0.4);
   --color-focus:           #2563EB;
 
-  /* Neumorphic Shadows */
-  --shadow-sm:       2px 2px 5px rgba(163, 177, 198, 0.5), -2px -2px 5px rgba(255, 255, 255, 0.8);
-  --shadow-card:     6px 6px 12px rgba(163, 177, 198, 0.6), -6px -6px 12px rgba(255, 255, 255, 0.9);
-  --shadow-elevated: 10px 10px 20px rgba(163, 177, 198, 0.7), -10px -10px 20px rgba(255, 255, 255, 0.95);
-  --shadow-modal:    16px 16px 32px rgba(163, 177, 198, 0.8), -16px -16px 32px rgba(255, 255, 255, 1);
+  /* Neumorphic Shadows (warm paper) */
+  --shadow-sm:       2px 2px 5px rgba(180, 165, 150, 0.5), -2px -2px 5px rgba(255, 255, 255, 0.8);
+  --shadow-card:     6px 6px 12px rgba(180, 165, 150, 0.6), -6px -6px 12px rgba(255, 255, 255, 0.9);
+  --shadow-elevated: 10px 10px 20px rgba(180, 165, 150, 0.7), -10px -10px 20px rgba(255, 255, 255, 0.95);
+  --shadow-modal:    16px 16px 32px rgba(180, 165, 150, 0.8), -16px -16px 32px rgba(255, 255, 255, 1);
   --shadow-glow:     0 0 15px rgba(37, 99, 235, 0.2);
   --shadow-focus:    0 0 0 3px rgba(37, 99, 235, 0.4);
-  --shadow-inset:    inset 4px 4px 8px rgba(163, 177, 198, 0.6), inset -4px -4px 8px rgba(255, 255, 255, 0.9);
+  --shadow-inset:    inset 4px 4px 8px rgba(180, 165, 150, 0.6), inset -4px -4px 8px rgba(255, 255, 255, 0.9);
 
   /* Typography */
   --font-body:    'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -460,19 +460,19 @@ dialog.duemate-dialog::backdrop {
 
 /* Neumorphic raised card — used by all onboarding screens */
 .neumorphic-raised {
-  background: #EAF0F8;
+  background: #F6F4F0;
   box-shadow: 6px 6px 12px #d1d9e6, -6px -6px 12px #ffffff;
 }
 
 /* Neumorphic inset — inputs, info wells */
 .neumorphic-inset {
-  background: #EAF0F8;
+  background: #F6F4F0;
   box-shadow: inset 4px 4px 8px #d1d9e6, inset -4px -4px 8px #ffffff;
 }
 
 /* Pill chip — step badge, labels */
 .neumorphic-pill {
-  background: #EAF0F8;
+  background: #F6F4F0;
   box-shadow: 4px 4px 8px #d1d9e6, -4px -4px 8px #ffffff;
 }
 
@@ -509,7 +509,7 @@ dialog.duemate-dialog::backdrop {
 }
 
 .neumorphic-pill-raised {
-  background: #EAF0F8;
+  background: #F6F4F0;
   box-shadow: 4px 4px 8px #d1d9e6, -4px -4px 8px #ffffff;
 }
 
@@ -545,7 +545,7 @@ dialog.duemate-dialog::backdrop {
 
 /* Secondary action button — flat neumorphic */
 .neumorphic-button-secondary {
-  background: #EAF0F8;
+  background: #F6F4F0;
   box-shadow: 4px 4px 8px #d1d9e6, -4px -4px 8px #ffffff;
   color: #0F172A;
   min-height: 48px;

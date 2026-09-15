@@ -4,7 +4,13 @@
  * Main application component with routing and auth state management.
  *
  * Onboarding flow (new users):
- *   landing → whatsapp-activation → whatsapp-number → otp → (authenticated)
+ *   landing → whatsapp-activation → whatsapp-number → otp → profile-setup (name)
+ *   → section-setup (pick section → official timetable, PDF-free)
+ *       ├─ official available → dashboard
+ *       └─ not available      → onboarding-upload (PDF fallback) → dashboard
+ *
+ * Program + semester are derived from the section (e.g. "BSCS-7B"). The university
+ * step is locked to Riphah for now and can be enabled later without backend changes.
  *
  * Returning users skip straight to the dashboard once the session is valid.
  */
@@ -19,13 +25,16 @@ import {
   getValidToken,
   clearAuth,
 } from "./auth";
-import { authApi } from "./api";
+import { authApi, userApi } from "./api";
+import { parseSection } from "./lib/section";
 import type { AuthVerifyResponse } from "./types";
 
 // Lazy imports - page-level code splitting
 // Using wrapper to convert named exports to default exports for React.lazy
 const AppShell = lazy(() => import("./pages/AppShell").then(m => ({ default: m.AppShell })));
 const ProfileSetup = lazy(() => import("./pages/ProfileSetup/ProfileSetup").then(m => ({ default: m.ProfileSetup })));
+const SectionSetup = lazy(() => import("./pages/SectionSetup/SectionSetup").then(m => ({ default: m.SectionSetup })));
+const UploadTimetable = lazy(() => import("./pages/UploadTimetable/UploadTimetable").then(m => ({ default: m.UploadTimetable })));
 const Landing = lazy(() => import("./pages/Landing/Landing").then(m => ({ default: m.Landing })));
 const WhatsAppActivation = lazy(() => import("./pages/WhatsAppActivation/WhatsAppActivation").then(m => ({ default: m.WhatsAppActivation })));
 const WhatsAppNumber = lazy(() => import("./pages/WhatsAppNumber/WhatsAppNumber").then(m => ({ default: m.WhatsAppNumber })));
@@ -126,6 +135,8 @@ type Screen =
   | "whatsapp-number"
   | "otp"
   | "profile-setup"
+  | "section-setup"
+  | "onboarding-upload"
   | "authenticated";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -135,7 +146,7 @@ type Screen =
 // Loading fallback for Suspense boundaries
 function PageLoader() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#EAF0F8] gap-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#F6F4F0] gap-4">
       <RoundSpinner size="xl" color="blue" />
       <span className="text-sm font-semibold text-slate-600 animate-pulse">Loading...</span>
     </div>
@@ -195,7 +206,7 @@ export function App() {
 
       {/* Loading spinner */}
       {screen === "loading" && (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-[#EAF0F8] gap-4">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-[#F6F4F0] gap-4">
           <RoundSpinner size="xl" color="blue" />
           <span className="text-sm font-semibold text-slate-600 animate-pulse">Loading DueMate...</span>
         </div>
@@ -242,15 +253,61 @@ export function App() {
         </Suspense>
       )}
 
-      {/* Screen 5 — Profile Setup */}
+      {/* Screen 5 — Profile Setup (name) */}
       {screen === "profile-setup" && (
         <Suspense fallback={<PageLoader />}>
           <ProfileSetup
             onComplete={(name) => {
               localStorage.setItem("duemate_user_name", name);
-              setScreen("authenticated");
+              setScreen("section-setup");
             }}
             onSkip={() => {
+              setScreen("section-setup");
+            }}
+          />
+        </Suspense>
+      )}
+
+      {/* Screen 6 — Section Setup (official timetable, PDF-free onboarding) */}
+      {screen === "section-setup" && (
+        <Suspense fallback={<PageLoader />}>
+          <SectionSetup
+            onBack={() => setScreen("profile-setup")}
+            onDone={(updatedUser) => {
+              setUser(updatedUser);
+              setScreen("authenticated");
+            }}
+            onNeedUpload={() => setScreen("onboarding-upload")}
+            onSkip={() => setScreen("authenticated")}
+          />
+        </Suspense>
+      )}
+
+      {/* Screen 6b — Fallback: upload timetable PDF during onboarding */}
+      {screen === "onboarding-upload" && (
+        <Suspense fallback={<PageLoader />}>
+          <UploadTimetable
+            onBack={() => setScreen("section-setup")}
+            onComplete={async (section) => {
+              // The upload flow already saved timetable_section via /select.
+              // Persist derived academic identity so an official timetable for this
+              // section (if published later) will take precedence automatically.
+              try {
+                const meta = parseSection(section);
+                await userApi.updateSettings({
+                  university_id: "riphah",
+                  program: meta.program,
+                  semester: meta.semester,
+                });
+              } catch {
+                /* non-fatal */
+              }
+              try {
+                const fresh = await authApi.verifySession();
+                setUser(fresh);
+              } catch {
+                /* keep existing user */
+              }
               setScreen("authenticated");
             }}
           />
@@ -260,7 +317,7 @@ export function App() {
       {/* Authenticated — AppShell */}
       {screen === "authenticated" && user && (
         <Suspense fallback={<PageLoader />}>
-          <AppShell onLogout={handleLogout} user={user} />
+          <AppShell onLogout={handleLogout} user={user} onUserUpdated={setUser} />
         </Suspense>
       )}
     </>

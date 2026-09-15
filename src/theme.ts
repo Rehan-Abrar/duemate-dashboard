@@ -1,10 +1,10 @@
 /**
  * DueMate Theme System
  *
- * AESTHETIC DIRECTION: Cloud-blue neumorphic (shipped UI)
+ * AESTHETIC DIRECTION: Warm paper neumorphic (shipped UI)
  * ═══════════════════════════════════════════════════════════════════════════════
  *
- * Soft cloud-blue surfaces (#EAF0F8), deep navy text (#0F172A), and electric-blue
+ * Warm paper surfaces (#F6F4F0), deep navy text (#0F172A), and electric-blue
  * accent (#2563EB). Raised / inset shadows — not glassmorphism or generic SaaS.
  *
  * Design principles:
@@ -37,10 +37,10 @@ export const theme = {
     brandLight: "#DCE8FF",
     brandDark: "#1D4ED8",
 
-    // Surfaces — Soft Cloud Blue (#EAF0F8) for neumorphic look
-    surface: "#EAF0F8",           // Main background
-    surfaceElevated: "#EAF0F8",   // Neumorphic surface (same as bg to blend)
-    surfaceHover: "#F1F5F9",      // Hover state
+    // Surfaces — Warm Paper (#F6F4F0) for cohesive neumorphic look
+    surface: "#F6F4F0",           // Main background
+    surfaceElevated: "#F6F4F0",   // Neumorphic surface (same as bg to blend)
+    surfaceHover: "#FDFCFA",      // Hover state (lighter warm paper)
     surfaceActive: "#DCE8FF",     // Active/selected state (Soft Blue Highlight)
 
     // Text — Deep Navy and muted tones
@@ -62,7 +62,7 @@ export const theme = {
 
     // Gradients (CSS values)
     gradientBrand: "linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)",
-    gradientSurface: "linear-gradient(180deg, #EAF0F8 0%, #DFE7F2 100%)",
+    gradientSurface: "linear-gradient(180deg, #F6F4F0 0%, #EFEAE2 100%)",
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -124,16 +124,16 @@ export const theme = {
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // SHADOWS (Neumorphic)
+  // SHADOWS (Neumorphic — warm paper)
   // ─────────────────────────────────────────────────────────────────────────────
   shadows: {
-    sm: "2px 2px 5px rgba(163, 177, 198, 0.5), -2px -2px 5px rgba(255, 255, 255, 0.8)",
-    card: "6px 6px 12px rgba(163, 177, 198, 0.6), -6px -6px 12px rgba(255, 255, 255, 0.9)",
-    elevated: "10px 10px 20px rgba(163, 177, 198, 0.7), -10px -10px 20px rgba(255, 255, 255, 0.95)",
-    modal: "16px 16px 32px rgba(163, 177, 198, 0.8), -16px -16px 32px rgba(255, 255, 255, 1)",
+    sm: "2px 2px 5px rgba(180, 165, 150, 0.5), -2px -2px 5px rgba(255, 255, 255, 0.8)",
+    card: "6px 6px 12px rgba(180, 165, 150, 0.6), -6px -6px 12px rgba(255, 255, 255, 0.9)",
+    elevated: "10px 10px 20px rgba(180, 165, 150, 0.7), -10px -10px 20px rgba(255, 255, 255, 0.95)",
+    modal: "16px 16px 32px rgba(180, 165, 150, 0.8), -16px -16px 32px rgba(255, 255, 255, 1)",
     glow: "0 0 15px rgba(37, 99, 235, 0.2)",  // Electric Blue glow
     focus: "0 0 0 3px rgba(37, 99, 235, 0.4)", // Focus outline
-    inset: "inset 4px 4px 8px rgba(163, 177, 198, 0.6), inset -4px -4px 8px rgba(255, 255, 255, 0.9)", // Pressed states
+    inset: "inset 4px 4px 8px rgba(180, 165, 150, 0.6), inset -4px -4px 8px rgba(255, 255, 255, 0.9)", // Pressed states
   },
 
   // ─────────────────────────────────────────────────────────────────────────────

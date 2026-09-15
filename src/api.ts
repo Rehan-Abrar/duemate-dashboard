@@ -25,6 +25,8 @@ import type {
   CourseMapping,
   PushSubscription,
   TimetableData,
+  TimetableOptionsResponse,
+  TimetableAvailableResponse,
   AssistantChatResponse,
 } from "./types";
 import { getAuthTokens, setAuthTokens, clearAuth } from "./auth";
@@ -496,15 +498,47 @@ export const timetableApi = {
   },
 
   /**
-   * Select the user's active section from a previously uploaded PDF.
-   * No re-upload required.
+   * List universities / terms / sections available from published official
+   * (admin-managed) timetables. Used by onboarding to offer a section without
+   * requiring the student to upload a PDF.
+   */
+  async getOptions(): Promise<TimetableOptionsResponse> {
+    return apiRequest<TimetableOptionsResponse>("/api/timetable/options", {
+      method: "GET",
+    });
+  },
+
+  /**
+   * Check whether a published + effective official timetable covers a section.
+   */
+  async checkAvailable(
+    section: string,
+    opts?: { universityId?: string; term?: string }
+  ): Promise<TimetableAvailableResponse> {
+    const params = new URLSearchParams({ section });
+    if (opts?.universityId) params.set("university_id", opts.universityId);
+    if (opts?.term) params.set("term", opts.term);
+    return apiRequest<TimetableAvailableResponse>(
+      `/api/timetable/available?${params.toString()}`,
+      { method: "GET" }
+    );
+  },
+
+  /**
+   * Select the user's active section.
+   * Official path: published timetable covering the section (no PDF required).
+   * Self-upload fallback: a previously uploaded PDF.
    */
   async selectSection(
-    section: string
-  ): Promise<{ section: string; slots: number }> {
-    return apiRequest<{ section: string; slots: number }>(
+    section: string,
+    opts?: { universityId?: string; academicTerm?: string }
+  ): Promise<{ section: string; slots: number; source?: string }> {
+    const body: Record<string, string> = { section };
+    if (opts?.universityId) body.university_id = opts.universityId;
+    if (opts?.academicTerm) body.academic_term = opts.academicTerm;
+    return apiRequest<{ section: string; slots: number; source?: string }>(
       "/api/student/timetable/select",
-      { method: "POST", body: { section } }
+      { method: "POST", body }
     );
   },
 

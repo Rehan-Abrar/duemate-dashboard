@@ -234,7 +234,7 @@ export function Assistant() {
       {/* Message Input Bar (Fixed) */}
       <div
         className="fixed bottom-0 md:bottom-6 left-1/2 -translate-x-1/2 w-full max-w-4xl px-4 sm:px-6 pb-[max(1rem,env(safe-area-inset-bottom))]"
-        style={{ background: "linear-gradient(to top, #EAF0F8 60%, transparent)" }}
+        style={{ background: "linear-gradient(to top, #F6F4F0 60%, transparent)" }}
       >
         <div className="neumorphic-inset h-14 flex items-center px-4 gap-3">
           <label htmlFor="assistant-message" className="sr-only">
