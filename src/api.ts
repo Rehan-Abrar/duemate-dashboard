@@ -28,8 +28,12 @@ import type {
   TimetableOptionsResponse,
   TimetableAvailableResponse,
   AssistantChatResponse,
+  AdminLoginResponse,
+  AdminTimetableUploadResponse,
+  AdminTimetableReviewResponse,
+  AdminTimetableVersion,
 } from "./types";
-import { getAuthTokens, setAuthTokens, clearAuth } from "./auth";
+import { getAuthTokens, setAuthTokens, clearAuth, getAdminToken, setAdminSession } from "./auth";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONFIGURATION
@@ -71,6 +75,12 @@ const ERROR_MESSAGES: Record<string, string> = {
   timetable_parse_failed: "We couldn't parse the timetable. Please check it is a supported Riphah grid-format PDF.",
   no_timetable_uploaded: "No timetable uploaded yet. Please upload a PDF first.",
   invalid_section: "That section was not found in your timetable.",
+  invalid_credentials: "Admin username or password is incorrect.",
+  forbidden: "Admin access denied.",
+  missing_token: "Admin session expired. Turn Admin Mode on again.",
+  already_published: "This timetable version is already published.",
+  parse_invalid: "This version has no detected sections and cannot be published.",
+  missing_fields: "University and academic term are required.",
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -163,7 +173,8 @@ async function handleResponse<T>(response: Response): Promise<T> {
     
     const friendlyMessage = 
       ERROR_MESSAGES[errorData.error] || 
-      errorData.message || 
+      errorData.message ||
+      errorData.detail ||
       ERROR_MESSAGES.internal_error;
     
     throw new ApiClientError(errorData.error, friendlyMessage, errorData.details);
@@ -587,6 +598,108 @@ export const assistantApi = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// ADMIN TIMETABLE API (uses the admin JWT, never the student token)
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function adminRequest<T>(
+  endpoint: string,
+  options: { method: "GET" | "POST"; body?: unknown } = { method: "GET" }
+): Promise<T> {
+  const token = getAdminToken();
+  if (!token) {
+    throw new ApiClientError("missing_token", ERROR_MESSAGES.missing_token);
+  }
+
+  const url = `${API_BASE_URL}${endpoint}`;
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+  };
+  if (options.body !== undefined) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: options.method,
+      headers,
+      body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+    });
+  } catch {
+    throw new ApiClientError("network_error", ERROR_MESSAGES.network_error);
+  }
+
+  return handleResponse<T>(response);
+}
+
+export const adminTimetableApi = {
+  async login(username: string, password: string): Promise<AdminLoginResponse> {
+    const result = await apiRequest<AdminLoginResponse>("/api/admin/login", {
+      method: "POST",
+      body: { username, password },
+      skipAuth: true,
+    });
+    setAdminSession(result.token, result.expires_at);
+    return result;
+  },
+
+  async upload(
+    file: File,
+    universityId: string,
+    academicTerm: string
+  ): Promise<AdminTimetableUploadResponse> {
+    const token = getAdminToken();
+    if (!token) {
+      throw new ApiClientError("missing_token", ERROR_MESSAGES.missing_token);
+    }
+    const form = new FormData();
+    form.append("file", file);
+    form.append("university_id", universityId);
+    form.append("academic_term", academicTerm);
+
+    let response: Response;
+    try {
+      response = await fetch(`${API_BASE_URL}/api/admin/timetable/upload`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      });
+    } catch {
+      throw new ApiClientError("network_error", ERROR_MESSAGES.network_error);
+    }
+    return handleResponse<AdminTimetableUploadResponse>(response);
+  },
+
+  async versions(timetableId?: string): Promise<{ items: AdminTimetableVersion[]; count: number }> {
+    const qs = timetableId ? `?timetable_id=${encodeURIComponent(timetableId)}` : "";
+    return adminRequest(`/api/admin/timetable/versions${qs}`);
+  },
+
+  async review(versionId: string): Promise<AdminTimetableReviewResponse> {
+    return adminRequest(`/api/admin/timetable/${encodeURIComponent(versionId)}/review`);
+  },
+
+  async publish(
+    versionId: string,
+    effectiveFrom?: string
+  ): Promise<{ version_id: string; version: number; status: string; effective_from: string }> {
+    return adminRequest(`/api/admin/timetable/${encodeURIComponent(versionId)}/publish`, {
+      method: "POST",
+      body: effectiveFrom ? { effective_from: effectiveFrom } : {},
+    });
+  },
+
+  async rollback(
+    versionId: string
+  ): Promise<{ version_id: string; version: number; status: string; effective_from: string }> {
+    return adminRequest(`/api/admin/timetable/${encodeURIComponent(versionId)}/rollback`, {
+      method: "POST",
+      body: {},
+    });
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // DEFAULT EXPORT
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -597,4 +710,5 @@ export default {
   courseMappings: courseMappingsApi,
   timetable: timetableApi,
   assistant: assistantApi,
+  adminTimetable: adminTimetableApi,
 };

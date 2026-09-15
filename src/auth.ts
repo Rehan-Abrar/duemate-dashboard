@@ -15,6 +15,9 @@ const STORAGE_KEYS = {
   ACCESS_TOKEN: "duemate_access_token",
   REFRESH_TOKEN: "duemate_refresh_token",
   USER: "duemate_user",
+  ADMIN_TOKEN: "duemate_admin_token",
+  ADMIN_EXPIRES: "duemate_admin_expires",
+  ADMIN_MODE: "duemate_admin_mode",
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -52,6 +55,7 @@ export function clearAuth(): void {
   localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
   localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
   localStorage.removeItem(STORAGE_KEYS.USER);
+  clearAdminSession();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -167,6 +171,63 @@ export function isValidPhoneNumber(phone: string): boolean {
   const normalized = normalizePhoneNumber(phone);
   // E.164 format: + followed by 10-15 digits
   return /^\+\d{10,15}$/.test(normalized);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADMIN SESSION (separate from the student JWT)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * UI-only phone gate for showing Admin Mode. Never used as backend authorization.
+ */
+export const ADMIN_MODE_PHONE_DIGITS = "923334892624";
+
+export function canShowAdminModeUi(phone: string | null | undefined): boolean {
+  const digits = String(phone || "").replace(/\D/g, "");
+  if (!digits) return false;
+  if (digits === ADMIN_MODE_PHONE_DIGITS) return true;
+  if (digits === `0${ADMIN_MODE_PHONE_DIGITS.slice(2)}`) return true; // 03334892624
+  return false;
+}
+
+export function setAdminSession(token: string, expiresAt?: string | null): void {
+  localStorage.setItem(STORAGE_KEYS.ADMIN_TOKEN, token);
+  if (expiresAt) localStorage.setItem(STORAGE_KEYS.ADMIN_EXPIRES, expiresAt);
+  else localStorage.removeItem(STORAGE_KEYS.ADMIN_EXPIRES);
+  localStorage.setItem(STORAGE_KEYS.ADMIN_MODE, "1");
+}
+
+export function clearAdminSession(): void {
+  localStorage.removeItem(STORAGE_KEYS.ADMIN_TOKEN);
+  localStorage.removeItem(STORAGE_KEYS.ADMIN_EXPIRES);
+  localStorage.removeItem(STORAGE_KEYS.ADMIN_MODE);
+}
+
+export function getAdminToken(): string | null {
+  const token = localStorage.getItem(STORAGE_KEYS.ADMIN_TOKEN);
+  if (!token) return null;
+  const expires = localStorage.getItem(STORAGE_KEYS.ADMIN_EXPIRES);
+  if (expires) {
+    const ms = Date.parse(expires);
+    if (!Number.isNaN(ms) && ms <= Date.now() + 30_000) {
+      clearAdminSession();
+      return null;
+    }
+  }
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    if (payload.exp && payload.exp * 1000 < Date.now() + 30_000) {
+      clearAdminSession();
+      return null;
+    }
+  } catch {
+    // Opaque or undecodable — still send it; backend is the authority.
+  }
+  return token;
+}
+
+export function isAdminModeEnabled(): boolean {
+  return localStorage.getItem(STORAGE_KEYS.ADMIN_MODE) === "1" && Boolean(getAdminToken());
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

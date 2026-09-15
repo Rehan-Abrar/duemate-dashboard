@@ -54,6 +54,58 @@ export interface TimetableAvailableResponse {
   academic_term?: string;
 }
 
+export interface TimetableDiff {
+  added: string[];
+  removed: string[];
+  changed: string[];
+  counts: { added: number; removed: number; changed: number };
+}
+
+export interface AdminTimetableVersion {
+  version_id: string;
+  timetable_id: string;
+  university_id: string;
+  academic_term: string;
+  version: number;
+  status: "draft" | "published" | string;
+  effective_from?: string | null;
+  effective_to?: string | null;
+  detected_sections: string[];
+  uploaded_at?: string | null;
+  uploaded_by?: string | null;
+}
+
+export interface AdminTimetableUploadResponse {
+  version_id: string;
+  timetable_id: string;
+  version: number;
+  status: string;
+  detected_sections: string[];
+  diff: TimetableDiff;
+}
+
+export interface AdminTimetableReviewResponse {
+  version_id: string;
+  timetable_id: string;
+  version: number;
+  status: string;
+  detected_sections: string[];
+  diff: TimetableDiff;
+  slot_counts: Record<string, number>;
+}
+
+export interface AdminLoginResponse {
+  token: string;
+  token_type: string;
+  expires_in: number;
+  expires_at: string;
+  user: {
+    user_id: string;
+    username: string;
+    is_admin: boolean;
+  };
+}
+
 export interface PushSubscription {
   endpoint: string;
   keys: {
@@ -180,7 +232,8 @@ export interface AuthState {
 
 export interface ApiError {
   error: string;
-  message: string;
+  message?: string;
+  detail?: string;
   details?: Record<string, unknown>;
 }
 

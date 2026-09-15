@@ -10,6 +10,8 @@ import { AddTaskModal } from "../components/AddTaskModal";
 import { tasksApi, timetableApi } from "../api";
 import type { User, Task } from "../types";
 import { SectionSetup } from "./SectionSetup/SectionSetup";
+import { AdminTimetable } from "./Admin/AdminTimetable";
+import { canShowAdminModeUi, isAdminModeEnabled, clearAdminSession } from "../auth";
 
 interface AppShellProps {
   onLogout: () => void;
@@ -17,7 +19,7 @@ interface AppShellProps {
   onUserUpdated?: (user: User) => void;
 }
 
-type Tab = "home" | "tasks" | "calendar" | "timetable" | "assistant" | "profile";
+type Tab = "home" | "tasks" | "calendar" | "timetable" | "assistant" | "profile" | "admin-timetable";
 type ModalView = null | "upload-timetable" | "change-class" | "change-official-class";
 
 export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
@@ -33,6 +35,18 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
     user?.settings?.available_sections ?? []
   );
   const [officialSections, setOfficialSections] = useState<string[]>([]);
+  const showAdminToggle = canShowAdminModeUi(user?.phone_number);
+  const [adminMode, setAdminMode] = useState(
+    () => canShowAdminModeUi(user?.phone_number) && isAdminModeEnabled()
+  );
+
+  useEffect(() => {
+    if (!showAdminToggle) {
+      setAdminMode(false);
+      return;
+    }
+    setAdminMode(isAdminModeEnabled());
+  }, [showAdminToggle]);
 
   // Keep section state in sync if user object changes (e.g. after refresh)
   useEffect(() => {
@@ -126,6 +140,16 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
     setIsDrawerOpen(false);
   }
 
+  function handleAdminModeChange(enabled: boolean) {
+    if (!enabled) {
+      clearAdminSession();
+      setAdminMode(false);
+      if (activeTab === "admin-timetable") setActiveTab("profile");
+      return;
+    }
+    setAdminMode(true);
+  }
+
   useEffect(() => {
     if (!isDrawerOpen) return;
     const onKey = (event: KeyboardEvent) => {
@@ -178,6 +202,17 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
             isActive={activeTab === "assistant" && !modalView}
             onClick={() => goToTab("assistant")}
           />
+          {adminMode && (
+            <div className="mt-6 pt-4 border-t border-white/40 space-y-2">
+              <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider px-2">Admin</span>
+              <DesktopNavItem
+                icon="admin_panel_settings"
+                label="Timetable Management"
+                isActive={activeTab === "admin-timetable" && !modalView}
+                onClick={() => goToTab("admin-timetable")}
+              />
+            </div>
+          )}
         </div>
 
         <div className="mt-auto">
@@ -281,6 +316,18 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
               />
             </div>
 
+            {adminMode && (
+            <div className="space-y-2">
+              <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider px-4">Admin</span>
+              <DesktopNavItem
+                icon="admin_panel_settings"
+                label="Timetable Management"
+                isActive={activeTab === "admin-timetable" && !modalView}
+                onClick={() => goToTab("admin-timetable")}
+              />
+            </div>
+            )}
+
             <div className="space-y-2">
               <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider px-4">Account</span>
               <DesktopNavItem
@@ -365,6 +412,7 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
         />
       )}
       {!modalView && activeTab === "assistant" && <Assistant />}
+      {!modalView && activeTab === "admin-timetable" && adminMode && <AdminTimetable />}
       {!modalView && activeTab === "profile" && (
         <Profile
           user={user}
@@ -375,6 +423,9 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
           hasOfficialSections={officialSections.length > 0}
           currentSection={timetableSection}
           onChangeSection={handleChangeClass}
+          showAdminToggle={showAdminToggle}
+          adminMode={adminMode}
+          onAdminModeChange={handleAdminModeChange}
         />
       )}
 

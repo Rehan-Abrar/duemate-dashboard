@@ -1,4 +1,7 @@
+import { useState } from "react";
 import type { Task, User } from "../../types";
+import { Spinner } from "../../components/ui/spinner";
+import { adminTimetableApi, ApiClientError } from "../../api";
 
 interface ProfileProps {
   user: User;
@@ -9,9 +12,24 @@ interface ProfileProps {
   hasOfficialSections?: boolean;
   currentSection?: string | null;
   onChangeSection?: () => void;
+  showAdminToggle?: boolean;
+  adminMode?: boolean;
+  onAdminModeChange?: (enabled: boolean) => void;
 }
 
-export function Profile({ user, tasks, onLogout, onNavigateTimetable, availableSections = [], hasOfficialSections = false, currentSection, onChangeSection }: ProfileProps) {
+export function Profile({
+  user,
+  tasks,
+  onLogout,
+  onNavigateTimetable,
+  availableSections = [],
+  hasOfficialSections = false,
+  currentSection,
+  onChangeSection,
+  showAdminToggle = false,
+  adminMode = false,
+  onAdminModeChange,
+}: ProfileProps) {
   const pendingCount = tasks.filter((t) => t.status !== "completed").length;
   // Read the name saved during ProfileSetup from localStorage
   const displayName = localStorage.getItem("duemate_user_name") || "Student";
@@ -19,6 +37,11 @@ export function Profile({ user, tasks, onLogout, onNavigateTimetable, availableS
     month: "long",
     year: "numeric",
   });
+  const [unlocking, setUnlocking] = useState(false);
+  const [adminUser, setAdminUser] = useState("admin");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [adminBusy, setAdminBusy] = useState(false);
+  const [adminError, setAdminError] = useState<string | null>(null);
 
   return (
     <div className="w-full max-w-5xl mx-auto min-h-screen pb-12 bg-background-base">
@@ -146,6 +169,113 @@ export function Profile({ user, tasks, onLogout, onNavigateTimetable, availableS
             </div>
           </div>
         </section>
+
+        {showAdminToggle && (
+          <section className="neumorphic-raised rounded-[20px] p-5 space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h3 className="text-[18px] font-bold text-on-surface">Admin Mode</h3>
+                <p className="text-[12px] text-on-surface-variant mt-1">
+                  Unlock Timetable Management. Backend admin login is still required.
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={adminMode}
+                disabled={adminBusy}
+                onClick={() => {
+                  if (adminMode) {
+                    setUnlocking(false);
+                    setAdminPassword("");
+                    setAdminError(null);
+                    onAdminModeChange?.(false);
+                    return;
+                  }
+                  if (unlocking) {
+                    setUnlocking(false);
+                    setAdminError(null);
+                    return;
+                  }
+                  setUnlocking(true);
+                  setAdminError(null);
+                }}
+                className={`relative w-14 h-8 rounded-full shrink-0 transition-colors ${
+                  adminMode ? "bg-secondary" : "bg-outline/40"
+                }`}
+              >
+                <span
+                  className={`absolute top-1 left-1 w-6 h-6 rounded-full bg-white shadow transition-transform ${
+                    adminMode ? "translate-x-6" : "translate-x-0"
+                  }`}
+                />
+                <span className="sr-only">{adminMode ? "On" : "Off"}</span>
+              </button>
+            </div>
+            <p className="text-[12px] font-bold uppercase tracking-wider text-on-surface-variant">
+              {adminMode ? "ON" : "OFF"}
+            </p>
+
+            {unlocking && !adminMode && (
+              <form
+                className="space-y-3 pt-2"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setAdminBusy(true);
+                  setAdminError(null);
+                  try {
+                    await adminTimetableApi.login(adminUser.trim(), adminPassword);
+                    setUnlocking(false);
+                    setAdminPassword("");
+                    onAdminModeChange?.(true);
+                  } catch (err) {
+                    setAdminError(
+                      err instanceof ApiClientError
+                        ? err.message
+                        : "Admin login failed."
+                    );
+                  } finally {
+                    setAdminBusy(false);
+                  }
+                }}
+              >
+                <input
+                  type="text"
+                  autoComplete="username"
+                  value={adminUser}
+                  onChange={(e) => setAdminUser(e.target.value)}
+                  placeholder="Admin username"
+                  className="w-full h-12 px-4 rounded-xl neumorphic-inset border-none bg-[#F6F4F0] text-[15px] focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+                <input
+                  type="password"
+                  autoComplete="current-password"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  placeholder="Admin password"
+                  className="w-full h-12 px-4 rounded-xl neumorphic-inset border-none bg-[#F6F4F0] text-[15px] focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+                {adminError && (
+                  <p className="text-[13px] text-danger font-medium">{adminError}</p>
+                )}
+                <button
+                  type="submit"
+                  disabled={adminBusy || !adminUser.trim() || !adminPassword}
+                  className="w-full h-12 bg-secondary text-white rounded-xl font-bold text-[15px] flex items-center justify-center gap-2 disabled:opacity-40"
+                >
+                  {adminBusy ? (
+                    <>
+                      <Spinner size="sm" color="white" />
+                      Signing in…
+                    </>
+                  ) : (
+                    "Enable Admin Mode"
+                  )}
+                </button>
+              </form>
+            )}
+          </section>
+        )}
         </div>
 
         {/* Right Column */}
