@@ -88,15 +88,19 @@ export function Dashboard({ tasks, loading, onNavigate }: DashboardProps) {
           <h1 className="text-[20px] leading-[1.4] font-bold text-primary tracking-tight">              {getTimeGreeting(savedName)} 👋
           </h1>
         </div>
-        <div className="w-10 h-10 rounded-full neumorphic-raised p-0.5 overflow-hidden cursor-pointer" onClick={() => onNavigate("profile")}>
-          {/* Avatar Placeholder */}
+        <button
+          type="button"
+          onClick={() => onNavigate("profile")}
+          aria-label="View profile"
+          className="w-11 h-11 rounded-full neumorphic-raised p-0.5 overflow-hidden"
+        >
           <div className="w-full h-full bg-secondary text-white flex items-center justify-center font-bold text-sm rounded-full">
             {savedName.charAt(0).toUpperCase()}
           </div>
-        </div>
+        </button>
       </header>
 
-      <main className="px-6 pt-8 max-w-md md:max-w-6xl mx-auto space-y-6 md:space-y-0 md:grid md:grid-cols-12 md:gap-8">
+      <main className="px-6 pt-8 w-full max-w-6xl mx-auto space-y-6 md:space-y-0 md:grid md:grid-cols-12 md:gap-8">
         {/* Mobile Header Greeting */}
         <div className="md:hidden flex items-center justify-between mb-4">
           <div className="flex flex-col">
@@ -107,7 +111,7 @@ export function Dashboard({ tasks, loading, onNavigate }: DashboardProps) {
           </div>
           <button 
             onClick={() => onNavigate("profile")}
-            className="w-10 h-10 rounded-full neumorphic-raised p-0.5 overflow-hidden active:scale-95 transition-transform"
+            className="w-11 h-11 rounded-full neumorphic-raised p-0.5 overflow-hidden active:scale-95 transition-transform"
             aria-label="View profile"
           >
             <div className="w-full h-full bg-secondary text-white flex items-center justify-center font-bold text-sm rounded-full">
@@ -280,10 +284,11 @@ export function Dashboard({ tasks, loading, onNavigate }: DashboardProps) {
                 <p className="text-center text-slate-500 text-xs py-4">No upcoming tasks.</p>
               )}
               {upcomingTasks.map((task) => (
-                <div 
+                <button
+                  type="button"
                   key={task._id} 
                   onClick={() => onNavigate("tasks")} 
-                  className="neu-raised-premium rounded-2xl p-3.5 flex items-center gap-3.5 cursor-pointer hover:bg-slate-100/50 hover:translate-x-0.5 hover:shadow-md transition-all active:scale-98"
+                  className="w-full text-left neu-raised-premium rounded-2xl p-3.5 flex items-center gap-3.5 hover:bg-slate-100/50 hover:translate-x-0.5 hover:shadow-md transition-all active:scale-98"
                 >
                   <div className="w-9 h-9 neu-inset-soft rounded-xl flex items-center justify-center flex-shrink-0">
                     <span className="material-symbols-outlined text-blue-600 text-lg">
@@ -298,8 +303,8 @@ export function Dashboard({ tasks, loading, onNavigate }: DashboardProps) {
                       {task.parsed_due_date ? new Date(task.parsed_due_date).toLocaleDateString() : "No date"}
                     </p>
                   </div>
-                  <span className="material-symbols-outlined text-slate-400 text-sm">chevron_right</span>
-                </div>
+                  <span className="material-symbols-outlined text-slate-400 text-sm" aria-hidden="true">chevron_right</span>
+                </button>
               ))}
             </div>
           </section>

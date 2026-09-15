@@ -48,7 +48,7 @@ export function WhatsAppNumber({ onBack, onNext }: WhatsAppNumberProps) {
   return (
     <div className="flex justify-center min-h-screen bg-[#EAF0F8]">
       {/* Responsive Container */}
-      <main className="w-full max-w-[390px] md:max-w-4xl min-h-[844px] md:min-h-0 flex flex-col relative overflow-hidden bg-[#EAF0F8] text-left md:flex-row md:items-center md:gap-12 md:py-12">
+      <main className="w-full max-w-md md:max-w-4xl min-h-screen md:min-h-0 flex flex-col relative bg-[#EAF0F8] text-left md:flex-row md:items-center md:gap-12 md:py-12">
         {/* Left Side: Visual / Branding (Desktop Only) */}
         <div className="hidden md:flex flex-col items-center justify-center w-1/2 p-8">
           <div className="w-48 h-48 rounded-full bg-[#2563EB]/10 absolute orb-pulse blur-2xl"></div>
@@ -114,22 +114,25 @@ export function WhatsAppNumber({ onBack, onNext }: WhatsAppNumberProps) {
 
             {/* Phone Input Card */}
             <section className="neumorphic-raised rounded-[20px] p-5 flex flex-col gap-4">
-              <label className="text-[12px] font-semibold text-text-secondary uppercase">
+              <label htmlFor="whatsapp-number" className="text-[12px] font-semibold text-text-secondary uppercase">
                 WhatsApp Number
               </label>
               <div className="flex items-center neumorphic-inset rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-[#2563EB]/30 transition-all">
                 <div className="flex items-center gap-1.5 pl-4 pr-3 h-14 border-r border-[#c6c6cd]/50 shrink-0">
-                  <span className="material-symbols-outlined text-[20px] text-text-secondary">call</span>
+                  <span className="material-symbols-outlined text-[20px] text-text-secondary" aria-hidden="true">call</span>
                   <span className="text-sm font-semibold text-deep-navy">+92</span>
                 </div>
                 <input
+                  id="whatsapp-number"
                   className="flex-1 h-14 px-3 border-none bg-transparent text-base text-deep-navy placeholder:text-[#c6c6cd] focus:outline-none transition-all min-w-0"
                   placeholder="3XX-XXXXXXX"
                   type="tel"
+                  autoComplete="tel"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   disabled={isLoading}
                   autoFocus
+                  aria-invalid={error ? true : undefined}
                 />
               </div>
 

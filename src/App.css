@@ -42,6 +42,7 @@
   --color-border:          rgba(163, 177, 198, 0.4);
   --color-border-light:    rgba(255, 255, 255, 0.9);
   --color-overlay:         rgba(15, 23, 42, 0.4);
+  --color-focus:           #2563EB;
 
   /* Neumorphic Shadows */
   --shadow-sm:       2px 2px 5px rgba(163, 177, 198, 0.5), -2px -2px 5px rgba(255, 255, 255, 0.8);
@@ -247,8 +248,13 @@ input, select, textarea {
 
 /* ─── Focus Styles ───────────────────────────────────────── */
 :focus-visible {
+  outline: 2px solid var(--color-focus, #2563EB);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+:focus:not(:focus-visible) {
   outline: none;
-  box-shadow: var(--shadow-focus);
 }
 
 /* ─── Responsive Layout Helper ───────────────────────────── */
@@ -336,6 +342,25 @@ select:focus {
   backdrop-filter: blur(4px);
   z-index: 400;
   animation: fadeIn 200ms ease;
+}
+
+dialog.duemate-dialog {
+  border: none;
+  padding: 0;
+  background: transparent;
+  max-width: calc(100vw - 2rem);
+  margin: auto;
+}
+
+dialog.duemate-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog.duemate-dialog::backdrop {
+    backdrop-filter: none;
+  }
 }
 
 /* ─── Responsive ─────────────────────────────────────────── */
@@ -483,6 +508,41 @@ select:focus {
   outline-offset: 3px;
 }
 
+.neumorphic-pill-raised {
+  background: #EAF0F8;
+  box-shadow: 4px 4px 8px #d1d9e6, -4px -4px 8px #ffffff;
+}
+
+.font-headline-md {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.animate-fade-in {
+  animation: fadeIn 200ms ease;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Secondary action button — flat neumorphic */
 .neumorphic-button-secondary {
   background: #EAF0F8;
@@ -555,5 +615,29 @@ select:focus {
 
 .orb-pulse {
   animation: orb-pulse-anim 3s ease-in-out infinite;
+}
+
+/* ─── Reduced motion ─────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-ai-pulse,
+  .animate-float,
+  .orb-pulse,
+  .phone-mockup {
+    animation: none !important;
+  }
+
+  .phone-mockup,
+  .phone-mockup:hover {
+    transform: none !important;
+  }
 }
 

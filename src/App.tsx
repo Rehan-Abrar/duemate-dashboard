@@ -9,20 +9,11 @@
  * Returning users skip straight to the dashboard once the session is valid.
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { theme, generateCSSVariables } from "./theme";
 
-// New AppShell and components
-import { AppShell } from "./pages/AppShell";
-import { ProfileSetup } from "./pages/ProfileSetup/ProfileSetup";
-
-// New onboarding screens
-import { Landing } from "./pages/Landing/Landing";
-import { WhatsAppActivation } from "./pages/WhatsAppActivation/WhatsAppActivation";
-import { WhatsAppNumber } from "./pages/WhatsAppNumber/WhatsAppNumber";
-import { OTPVerification } from "./pages/OTPVerification/OTPVerification";
-
-// Auth utilities
+// Eager imports - small and needed for initialization
+import { RoundSpinner } from "./components/ui/spinner";
 import {
   handleLoginSuccess as storeLoginData,
   getValidToken,
@@ -30,6 +21,15 @@ import {
 } from "./auth";
 import { authApi } from "./api";
 import type { AuthVerifyResponse } from "./types";
+
+// Lazy imports - page-level code splitting
+// Using wrapper to convert named exports to default exports for React.lazy
+const AppShell = lazy(() => import("./pages/AppShell").then(m => ({ default: m.AppShell })));
+const ProfileSetup = lazy(() => import("./pages/ProfileSetup/ProfileSetup").then(m => ({ default: m.ProfileSetup })));
+const Landing = lazy(() => import("./pages/Landing/Landing").then(m => ({ default: m.Landing })));
+const WhatsAppActivation = lazy(() => import("./pages/WhatsAppActivation/WhatsAppActivation").then(m => ({ default: m.WhatsAppActivation })));
+const WhatsAppNumber = lazy(() => import("./pages/WhatsAppNumber/WhatsAppNumber").then(m => ({ default: m.WhatsAppNumber })));
+const OTPVerification = lazy(() => import("./pages/OTPVerification/OTPVerification").then(m => ({ default: m.OTPVerification })));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GLOBAL STYLES (injected via <style> tag — keeps existing theme integration)
@@ -78,6 +78,10 @@ const globalStyles = `
   :focus-visible { outline: 2px solid ${theme.colors.focus}; outline-offset: 2px; }
   :focus:not(:focus-visible) { outline: none; }
 
+  @media (prefers-reduced-motion: reduce) {
+    html:focus-within { scroll-behavior: auto; }
+  }
+
   .app-loading {
     display: flex;
     align-items: center;
@@ -100,8 +104,6 @@ const globalStyles = `
     to   { transform: rotate(360deg); }
   }
 `;
-
-import { RoundSpinner } from "./components/ui/spinner";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPES
@@ -129,6 +131,16 @@ type Screen =
 // ─────────────────────────────────────────────────────────────────────────────
 // COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
+
+// Loading fallback for Suspense boundaries
+function PageLoader() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#EAF0F8] gap-4">
+      <RoundSpinner size="xl" color="blue" />
+      <span className="text-sm font-semibold text-slate-600 animate-pulse">Loading...</span>
+    </div>
+  );
+}
 
 export function App() {
   const [screen, setScreen] = useState<Screen>("loading");
@@ -191,53 +203,65 @@ export function App() {
 
       {/* Screen 1 — Landing */}
       {screen === "landing" && (
-        <Landing onGetStarted={() => setScreen("whatsapp-activation")} />
+        <Suspense fallback={<PageLoader />}>
+          <Landing onGetStarted={() => setScreen("whatsapp-activation")} />
+        </Suspense>
       )}
 
       {/* Screen 2 — WhatsApp Activation (instruct user to message bot) */}
       {screen === "whatsapp-activation" && (
-        <WhatsAppActivation
-          onBack={() => setScreen("landing")}
-          onNext={() => setScreen("whatsapp-number")}
-        />
+        <Suspense fallback={<PageLoader />}>
+          <WhatsAppActivation
+            onBack={() => setScreen("landing")}
+            onNext={() => setScreen("whatsapp-number")}
+          />
+        </Suspense>
       )}
 
       {/* Screen 3 — Enter WhatsApp Number */}
       {screen === "whatsapp-number" && (
-        <WhatsAppNumber
-          onBack={() => setScreen("whatsapp-activation")}
-          onNext={(phone) => {
-            setPhoneNumber(phone);
-            setScreen("otp");
-          }}
-        />
+        <Suspense fallback={<PageLoader />}>
+          <WhatsAppNumber
+            onBack={() => setScreen("whatsapp-activation")}
+            onNext={(phone) => {
+              setPhoneNumber(phone);
+              setScreen("otp");
+            }}
+          />
+        </Suspense>
       )}
 
       {/* Screen 4 — OTP Verification */}
       {screen === "otp" && (
-        <OTPVerification
-          phoneNumber={phoneNumber}
-          onBack={() => setScreen("whatsapp-number")}
-          onSuccess={handleLoginSuccess}
-        />
+        <Suspense fallback={<PageLoader />}>
+          <OTPVerification
+            phoneNumber={phoneNumber}
+            onBack={() => setScreen("whatsapp-number")}
+            onSuccess={handleLoginSuccess}
+          />
+        </Suspense>
       )}
 
       {/* Screen 5 — Profile Setup */}
       {screen === "profile-setup" && (
-        <ProfileSetup
-          onComplete={(name) => {
-            localStorage.setItem("duemate_user_name", name);
-            setScreen("authenticated");
-          }}
-          onSkip={() => {
-            setScreen("authenticated");
-          }}
-        />
+        <Suspense fallback={<PageLoader />}>
+          <ProfileSetup
+            onComplete={(name) => {
+              localStorage.setItem("duemate_user_name", name);
+              setScreen("authenticated");
+            }}
+            onSkip={() => {
+              setScreen("authenticated");
+            }}
+          />
+        </Suspense>
       )}
 
       {/* Authenticated — AppShell */}
       {screen === "authenticated" && user && (
-        <AppShell onLogout={handleLogout} user={user} />
+        <Suspense fallback={<PageLoader />}>
+          <AppShell onLogout={handleLogout} user={user} />
+        </Suspense>
       )}
     </>
   );

@@ -48,24 +48,24 @@ export function Tasks({ tasks, loading, refreshTasks, onNavigate, onAddTask }: T
 
   return (
     <>
-      {/* Top AppBar (Desktop Only) */}
-      <header className="hidden md:flex justify-between items-center w-full px-6 sticky top-0 z-40 py-4 bg-background-base">
-        <div className="flex flex-col">
-          <h1 className="text-[24px] font-bold text-on-surface">Tasks</h1>
-          <p className="text-[14px] text-text-secondary">{tasksSubtitle}</p>
+      <header className="flex justify-between items-center w-full px-6 sticky top-16 md:top-0 z-30 py-4 bg-background-base">
+        <div className="flex flex-col min-w-0">
+          <h1 className="text-xl md:text-[24px] font-bold text-on-surface">Tasks</h1>
+          <p className="text-sm text-text-secondary">{tasksSubtitle}</p>
         </div>
         <button
+          type="button"
           onClick={onAddTask}
-          className="w-12 h-12 rounded-full flex items-center justify-center neumorphic-raised text-secondary active:scale-95 transition-transform"
-          title="Add Task via AI"
+          className="min-w-11 min-h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center neumorphic-raised text-secondary active:scale-95 transition-transform"
+          aria-label="Add task"
         >
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>
+          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }} aria-hidden="true">
             add
           </span>
         </button>
       </header>
 
-      <main className="px-6 mt-6 max-w-[390px] md:max-w-5xl mx-auto md:flex md:gap-8 md:items-start space-y-8 md:space-y-0">
+      <main className="px-6 mt-4 md:mt-6 w-full max-w-5xl mx-auto md:flex md:gap-8 md:items-start space-y-8 md:space-y-0">
         {/* Left Column: Summary & Filters */}
         <div className="md:w-1/3 space-y-8 md:sticky md:top-24">
         {/* Summary Area */}

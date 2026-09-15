@@ -45,7 +45,7 @@ export function ProfileSetup({ onComplete, onSkip }: ProfileSetupProps) {
       </header>
 
       {/* Main Canvas */}
-      <main className="w-full max-w-[390px] md:max-w-lg px-6 pb-8 flex flex-col items-center md:neumorphic-raised md:rounded-[32px] md:p-12 md:my-8">
+      <main className="w-full max-w-md md:max-w-lg px-6 pb-8 flex flex-col items-center md:neumorphic-raised md:rounded-[32px] md:p-12 md:my-8">
         {/* Hero Section */}
         <section className="mt-8 flex flex-col items-center text-center w-full">
           <div className="neumorphic-pill-raised px-4 py-2 rounded-full flex items-center gap-2 mb-8 border border-white/40">
@@ -86,13 +86,15 @@ export function ProfileSetup({ onComplete, onSkip }: ProfileSetupProps) {
             <form className="space-y-4" onSubmit={handleSubmit}>
               {/* Name Input */}
               <div className="flex flex-col gap-3">
-                <label className="text-[12px] uppercase tracking-wider font-semibold text-on-surface-variant ml-1">
+                <label htmlFor="profile-full-name" className="text-[12px] uppercase tracking-wider font-semibold text-on-surface-variant ml-1">
                   Full Name
                 </label>
                 <input
+                  id="profile-full-name"
                   className="w-full h-14 px-5 rounded-xl neumorphic-inset border-none focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 text-[18px] font-medium placeholder:text-outline/50 bg-[#EAF0F8] disabled:opacity-50"
                   placeholder="Enter your name"
                   type="text"
+                  autoComplete="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   autoFocus
@@ -137,19 +139,6 @@ export function ProfileSetup({ onComplete, onSkip }: ProfileSetupProps) {
             <p className="text-[14px] text-on-surface-variant">
               Your information helps DueMate provide personalized reminders. We keep your data private and secure.
             </p>
-          </div>
-          <div className="flex items-center justify-center gap-3 mt-6 w-full">
-            <button className="text-[12px] uppercase tracking-wider font-semibold text-outline hover:text-secondary transition-colors">
-              Privacy Policy
-            </button>
-            <span className="text-outline text-[10px]">•</span>
-            <button className="text-[12px] uppercase tracking-wider font-semibold text-outline hover:text-secondary transition-colors">
-              Terms of Service
-            </button>
-            <span className="text-outline text-[10px]">•</span>
-            <button className="text-[12px] uppercase tracking-wider font-semibold text-outline hover:text-secondary transition-colors">
-              Help Center
-            </button>
           </div>
         </section>
       </main>

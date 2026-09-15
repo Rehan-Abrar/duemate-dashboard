@@ -334,7 +334,7 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
   // ── Empty state (no section yet) ────────────────────────────────────────
   if (!section) {
     return (
-      <div className="max-w-[390px] md:max-w-5xl mx-auto min-h-screen pb-32 md:pb-12 bg-background-base flex flex-col">
+      <div className="w-full max-w-5xl mx-auto min-h-screen pb-12 bg-background-base flex flex-col">
         <header className="hidden md:flex sticky top-0 z-50 w-full bg-background-base px-6 py-4 items-center justify-between shadow-[0_4px_12px_rgba(209,217,230,0.4)]">
           <div className="w-10 h-10" />
           <h1 className="text-[20px] font-bold text-primary">My Timetable</h1>
@@ -358,14 +358,9 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
 
   // ── Main view ───────────────────────────────────────────────────────────
   return (
-    <div className="max-w-[390px] md:max-w-5xl mx-auto min-h-screen pb-32 md:pb-12 bg-background-base">
-      {/* Desktop header */}
-      <header className="hidden md:flex sticky top-0 z-50 w-full bg-background-base px-6 py-4 items-center justify-between shadow-[0_4px_12px_rgba(209,217,230,0.4)]">
-        <div className="w-10 h-10" />
+    <div className="w-full max-w-5xl mx-auto min-h-screen pb-12 bg-background-base">
+      <header className="hidden md:flex sticky top-0 z-50 w-full bg-background-base px-6 py-4 items-center shadow-[0_4px_12px_rgba(209,217,230,0.4)]">
         <h1 className="text-[20px] font-bold text-primary">My Timetable</h1>
-        <button className="neumorphic-button-secondary w-10 h-10 flex items-center justify-center rounded-2xl active:scale-95 transition-transform">
-          <span className="material-symbols-outlined text-secondary">calendar_month</span>
-        </button>
       </header>
 
       <main className="mt-6 px-6 space-y-6 md:space-y-0 md:grid md:grid-cols-12 md:gap-8 md:items-start">

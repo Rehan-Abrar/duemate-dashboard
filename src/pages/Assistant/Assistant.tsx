@@ -103,7 +103,7 @@ export function Assistant() {
   }
 
   return (
-    <div className="max-w-[390px] md:max-w-4xl mx-auto min-h-screen relative pb-40 bg-background-base">
+    <div className="w-full max-w-4xl mx-auto min-h-screen relative pb-28 md:pb-32 bg-background-base">
       {/* Top App Bar (Desktop Only) */}
       <header className="hidden md:flex w-full top-0 sticky z-50 bg-background-base/80 backdrop-blur-md h-16 justify-between items-center px-6">
         <div className="flex flex-col">
@@ -233,13 +233,16 @@ export function Assistant() {
 
       {/* Message Input Bar (Fixed) */}
       <div
-        className="fixed bottom-0 md:bottom-6 left-1/2 -translate-x-1/2 w-full max-w-[390px] md:max-w-4xl px-6 pb-4"
+        className="fixed bottom-0 md:bottom-6 left-1/2 -translate-x-1/2 w-full max-w-4xl px-4 sm:px-6 pb-[max(1rem,env(safe-area-inset-bottom))]"
         style={{ background: "linear-gradient(to top, #EAF0F8 60%, transparent)" }}
       >
         <div className="neumorphic-inset h-14 flex items-center px-4 gap-3">
-          <span className="material-symbols-outlined text-outline">mic</span>
+          <label htmlFor="assistant-message" className="sr-only">
+            Message DueMate
+          </label>
           <input
-            className="flex-1 bg-transparent border-none focus:ring-0 text-sm font-medium placeholder:text-outline/60 text-primary"
+            id="assistant-message"
+            className="flex-1 bg-transparent border-none focus:ring-0 text-sm font-medium placeholder:text-outline/60 text-primary min-w-0"
             placeholder="Ask DueMate anything..."
             type="text"
             value={input}
@@ -247,10 +250,12 @@ export function Assistant() {
             onKeyDown={(e) => e.key === "Enter" && sendMessage(input)}
           />
           <button
-            className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center shadow-md active:scale-95 transition-transform"
+            type="button"
+            className="min-w-11 min-h-11 rounded-xl bg-secondary flex items-center justify-center shadow-md active:scale-95 transition-transform"
             onClick={() => sendMessage(input)}
+            aria-label="Send message"
           >
-            <span className="material-symbols-outlined text-white">send</span>
+            <span className="material-symbols-outlined text-white" aria-hidden="true">send</span>
           </button>
         </div>
       </div>

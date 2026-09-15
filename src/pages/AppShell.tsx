@@ -82,29 +82,22 @@ export function AppShell({ onLogout, user }: AppShellProps) {
     setModalView(null);
   }
 
-  // ── Fullscreen modal views (not part of bottom nav) ────────────────
-  if (modalView === "upload-timetable") {
-    return (
-      <UploadTimetable
-        onComplete={handleTimetableComplete}
-        onBack={handleBackFromModal}
-      />
-    );
+  function goToTab(tab: Tab) {
+    setModalView(null);
+    setActiveTab(tab);
+    setIsDrawerOpen(false);
   }
 
-  if (modalView === "change-class") {
-    return (
-      <UploadTimetable
-        onComplete={handleTimetableComplete}
-        onBack={handleBackFromModal}
-        preloadedSections={availableSections}
-      />
-    );
-  }
+  useEffect(() => {
+    if (!isDrawerOpen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsDrawerOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isDrawerOpen]);
 
-
-
-  // ── Main App Shell with Bottom Navigation ──────────────────────────
+  // ── Main App Shell ─────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-background-base flex flex-col md:flex-row overflow-x-hidden">
       {/* Desktop Navigation Sidebar */}
@@ -120,32 +113,32 @@ export function AppShell({ onLogout, user }: AppShellProps) {
           <DesktopNavItem
             icon="home"
             label="Home"
-            isActive={activeTab === "home"}
-            onClick={() => setActiveTab("home")}
+            isActive={activeTab === "home" && !modalView}
+            onClick={() => goToTab("home")}
           />
           <DesktopNavItem
             icon="assignment"
             label="Tasks"
-            isActive={activeTab === "tasks"}
-            onClick={() => setActiveTab("tasks")}
+            isActive={activeTab === "tasks" && !modalView}
+            onClick={() => goToTab("tasks")}
           />
           <DesktopNavItem
             icon="calendar_month"
             label="Calendar"
-            isActive={activeTab === "calendar"}
-            onClick={() => setActiveTab("calendar")}
+            isActive={activeTab === "calendar" && !modalView}
+            onClick={() => goToTab("calendar")}
           />
           <DesktopNavItem
             icon="view_timeline"
             label="Timetable"
-            isActive={activeTab === "timetable"}
-            onClick={() => setActiveTab("timetable")}
+            isActive={activeTab === "timetable" && !modalView}
+            onClick={() => goToTab("timetable")}
           />
           <DesktopNavItem
             icon="smart_toy"
             label="Assistant"
-            isActive={activeTab === "assistant"}
-            onClick={() => setActiveTab("assistant")}
+            isActive={activeTab === "assistant" && !modalView}
+            onClick={() => goToTab("assistant")}
           />
         </div>
 
@@ -153,26 +146,26 @@ export function AppShell({ onLogout, user }: AppShellProps) {
           <DesktopNavItem
             icon="person"
             label="Profile"
-            isActive={activeTab === "profile"}
-            onClick={() => setActiveTab("profile")}
+            isActive={activeTab === "profile" && !modalView}
+            onClick={() => goToTab("profile")}
           />
         </div>
       </nav>
 
       {/* Mobile Top App Bar */}
-      <header className="md:hidden sticky top-0 z-40 bg-background-base w-full h-16 flex items-center justify-between px-4 shadow-[0_4px_12px_rgba(209,217,230,0.4)]">
+      <header className="md:hidden sticky top-0 z-40 bg-background-base w-full h-16 flex items-center px-4 shadow-[0_4px_12px_rgba(209,217,230,0.4)]">
         <div className="flex items-center gap-3">
           <button
+            type="button"
             onClick={() => setIsDrawerOpen(true)}
-            className="w-10 h-10 flex items-center justify-center rounded-xl neumorphic-raised active:scale-95 transition-transform"
+            aria-label="Open menu"
+            aria-expanded={isDrawerOpen}
+            className="min-w-11 min-h-11 flex items-center justify-center rounded-xl neumorphic-raised active:scale-95 transition-transform"
           >
-            <span className="material-symbols-outlined text-primary">menu</span>
+            <span className="material-symbols-outlined text-primary" aria-hidden="true">menu</span>
           </button>
           <span className="text-[20px] font-bold text-primary tracking-tight">DueMate</span>
         </div>
-        <button className="w-10 h-10 flex items-center justify-center rounded-xl neumorphic-raised active:scale-95 transition-transform">
-          <span className="material-symbols-outlined text-secondary">notifications</span>
-        </button>
       </header>
 
       {/* Mobile Navigation Drawer Overlay */}
@@ -185,6 +178,10 @@ export function AppShell({ onLogout, user }: AppShellProps) {
 
       {/* Mobile Navigation Drawer */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation"
+        aria-hidden={!isDrawerOpen}
         className={`md:hidden fixed inset-y-0 left-0 z-50 w-72 bg-[#EAF0F8] shadow-[8px_0_32px_rgba(15,23,42,0.15)] border-r border-white/80 transform transition-transform duration-300 ease-in-out flex flex-col ${
           isDrawerOpen ? "translate-x-0" : "-translate-x-full"
         }`}
@@ -198,11 +195,12 @@ export function AppShell({ onLogout, user }: AppShellProps) {
               <span className="text-2xl font-bold text-slate-900 tracking-tight">DueMate</span>
             </div>
             <button
+              type="button"
               onClick={() => setIsDrawerOpen(false)}
-              className="w-10 h-10 flex items-center justify-center rounded-xl neu-raised-premium active:scale-95 transition-transform"
+              className="min-w-11 min-h-11 flex items-center justify-center rounded-xl neu-raised-premium active:scale-95 transition-transform"
               aria-label="Close menu"
             >
-              <span className="material-symbols-outlined text-slate-600">close</span>
+              <span className="material-symbols-outlined text-slate-600" aria-hidden="true">close</span>
             </button>
           </div>
 
@@ -211,39 +209,27 @@ export function AppShell({ onLogout, user }: AppShellProps) {
               <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider px-4">Main</span>
               <DesktopNavItem
                 icon="home"
-                label="Dashboard"
-                isActive={activeTab === "home"}
-                onClick={() => {
-                  setActiveTab("home");
-                  setIsDrawerOpen(false);
-                }}
+                label="Home"
+                isActive={activeTab === "home" && !modalView}
+                onClick={() => goToTab("home")}
               />
               <DesktopNavItem
                 icon="assignment"
                 label="Tasks"
-                isActive={activeTab === "tasks"}
-                onClick={() => {
-                  setActiveTab("tasks");
-                  setIsDrawerOpen(false);
-                }}
+                isActive={activeTab === "tasks" && !modalView}
+                onClick={() => goToTab("tasks")}
               />
               <DesktopNavItem
                 icon="calendar_month"
                 label="Calendar"
-                isActive={activeTab === "calendar"}
-                onClick={() => {
-                  setActiveTab("calendar");
-                  setIsDrawerOpen(false);
-                }}
+                isActive={activeTab === "calendar" && !modalView}
+                onClick={() => goToTab("calendar")}
               />
               <DesktopNavItem
                 icon="view_timeline"
                 label="Timetable"
-                isActive={activeTab === "timetable"}
-                onClick={() => {
-                  setActiveTab("timetable");
-                  setIsDrawerOpen(false);
-                }}
+                isActive={activeTab === "timetable" && !modalView}
+                onClick={() => goToTab("timetable")}
               />
             </div>
 
@@ -251,12 +237,9 @@ export function AppShell({ onLogout, user }: AppShellProps) {
               <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider px-4">Productivity</span>
               <DesktopNavItem
                 icon="smart_toy"
-                label="AI Assistant"
-                isActive={activeTab === "assistant"}
-                onClick={() => {
-                  setActiveTab("assistant");
-                  setIsDrawerOpen(false);
-                }}
+                label="Assistant"
+                isActive={activeTab === "assistant" && !modalView}
+                onClick={() => goToTab("assistant")}
               />
             </div>
 
@@ -265,11 +248,8 @@ export function AppShell({ onLogout, user }: AppShellProps) {
               <DesktopNavItem
                 icon="person"
                 label="Profile"
-                isActive={activeTab === "profile"}
-                onClick={() => {
-                  setActiveTab("profile");
-                  setIsDrawerOpen(false);
-                }}
+                isActive={activeTab === "profile" && !modalView}
+                onClick={() => goToTab("profile")}
               />
             </div>
           </div>
@@ -287,48 +267,56 @@ export function AppShell({ onLogout, user }: AppShellProps) {
       </div>
 
       {/* Dynamic Content */}
-      <main className="flex-1 min-h-screen">
-      {activeTab === "home" && (
+      <main className="flex-1 min-h-screen min-w-0">
+      {modalView === "upload-timetable" && (
+        <UploadTimetable
+          onComplete={handleTimetableComplete}
+          onBack={handleBackFromModal}
+        />
+      )}
+      {modalView === "change-class" && (
+        <UploadTimetable
+          onComplete={handleTimetableComplete}
+          onBack={handleBackFromModal}
+          preloadedSections={availableSections}
+        />
+      )}
+      {!modalView && activeTab === "home" && (
         <Dashboard
           tasks={tasks}
           loading={loadingTasks}
-          onNavigate={(tab) => {
-            if (tab === "calendar") setActiveTab("calendar");
-            else if (tab === "tasks") setActiveTab("tasks");
-            else if (tab === "assistant") setActiveTab("assistant");
-            else if (tab === "profile") setActiveTab("profile");
-            else if (tab === "timetable") setActiveTab("timetable");
-          }}
+          onNavigate={(tab) => goToTab(tab as Tab)}
         />
       )}
-      {activeTab === "tasks" && (
+      {!modalView && activeTab === "tasks" && (
         <Tasks 
           user={user} 
           tasks={tasks}
           loading={loadingTasks}
           refreshTasks={refreshTasks}
-          onNavigate={(tab) => setActiveTab(tab as any)} 
+          onNavigate={(tab) => goToTab(tab as Tab)} 
           onAddTask={() => setIsAddTaskOpen(true)}
         />
       )}
-      {activeTab === "calendar" && (
+      {!modalView && activeTab === "calendar" && (
         <Calendar 
           user={user} 
           tasks={tasks}
           loading={loadingTasks}
           onAddTask={() => setIsAddTaskOpen(true)}
-          onNavigate={(tab) => setActiveTab(tab as any)}
+          onUploadTimetable={handleNavigateTimetable}
+          onNavigate={(tab) => goToTab(tab as Tab)}
         />
       )}
-      {activeTab === "timetable" && (
+      {!modalView && activeTab === "timetable" && (
         <PersonalTimetable
           section={timetableSection}
           onUploadNew={() => setModalView("upload-timetable")}
-          onAskAI={() => setActiveTab("assistant")}
+          onAskAI={() => goToTab("assistant")}
         />
       )}
-      {activeTab === "assistant" && <Assistant />}
-      {activeTab === "profile" && (
+      {!modalView && activeTab === "assistant" && <Assistant />}
+      {!modalView && activeTab === "profile" && (
         <Profile
           user={user}
           tasks={tasks}
@@ -342,12 +330,14 @@ export function AppShell({ onLogout, user }: AppShellProps) {
 
       </main>
 
-      {/* AI Task Extraction Modal */}
-      <AddTaskModal 
-        isOpen={isAddTaskOpen} 
-        onClose={() => setIsAddTaskOpen(false)} 
-        onSuccess={refreshTasks} 
-      />
+      {/* AI Task Extraction Modal - only mount when open */}
+      {isAddTaskOpen && (
+        <AddTaskModal
+          isOpen={isAddTaskOpen}
+          onClose={() => setIsAddTaskOpen(false)}
+          onSuccess={refreshTasks}
+        />
+      )}
     </div>
   );
 }
@@ -368,8 +358,10 @@ function DesktopNavItem({
   if (isActive) {
     return (
       <button
+        type="button"
         onClick={onClick}
-        className="flex items-center gap-3.5 bg-blue-600/10 text-blue-600 font-semibold rounded-xl px-4 py-3 border-l-4 border-blue-600 transition-all duration-200 w-full text-left"
+        aria-current="page"
+        className="flex items-center gap-3.5 bg-blue-600/10 text-blue-600 font-semibold rounded-xl px-4 py-3 border-l-4 border-blue-600 transition-all duration-200 w-full text-left min-h-11"
       >
         <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
           {icon}
@@ -381,8 +373,9 @@ function DesktopNavItem({
 
   return (
     <button
+      type="button"
       onClick={onClick}
-      className="flex items-center gap-3.5 text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 rounded-xl px-4 py-3 transition-all duration-200 w-full text-left group"
+      className="flex items-center gap-3.5 text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 rounded-xl px-4 py-3 transition-all duration-200 w-full text-left group min-h-11"
     >
       <span className="material-symbols-outlined text-xl text-slate-500 group-hover:text-slate-900 transition-colors" style={{ fontVariationSettings: "'FILL' 0" }}>
         {icon}

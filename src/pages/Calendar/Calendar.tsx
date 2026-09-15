@@ -8,10 +8,11 @@ interface CalendarProps {
   tasks: Task[];
   loading: boolean;
   onAddTask?: () => void;
+  onUploadTimetable?: () => void;
   onNavigate?: (tab: string) => void;
 }
 
-export function Calendar({ tasks: allTasks, loading, onAddTask }: CalendarProps) {
+export function Calendar({ tasks: allTasks, loading, onAddTask, onUploadTimetable }: CalendarProps) {
   const pendingTasks = allTasks.filter(t => t.status !== "completed");
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -78,34 +79,25 @@ export function Calendar({ tasks: allTasks, loading, onAddTask }: CalendarProps)
 
   return (
     <>
-      {/* Top App Bar (Desktop Only) */}
-      <header className="hidden md:flex bg-background-base shadow-[4px_4px_10px_rgba(163,177,198,0.6),-4px_-4px_10px_rgba(255,255,255,0.8)] w-full sticky top-0 items-center justify-between px-6 py-4 z-40">
-        <div className="flex items-center gap-2">
-          <span
-            className="material-symbols-outlined text-secondary text-[24px]"
-            style={{ fontVariationSettings: "'FILL' 0" }}
-          >
-            auto_awesome
-          </span>
-          <span className="text-[24px] font-bold text-secondary">
-            DueMate
-          </span>
+      <header className="flex bg-background-base shadow-[4px_4px_10px_rgba(163,177,198,0.6),-4px_-4px_10px_rgba(255,255,255,0.8)] w-full sticky top-16 md:top-0 items-center justify-between px-6 py-4 z-30">
+        <div className="flex flex-col min-w-0">
+          <h1 className="text-xl md:text-[24px] font-bold text-primary">Calendar</h1>
+          <p className="text-sm text-text-secondary hidden sm:block">Your semester timeline</p>
         </div>
         <button
+          type="button"
           onClick={onAddTask}
-          className="bg-secondary text-white px-4 py-2 rounded-xl flex items-center gap-2 neumorphic-raised active:scale-95 transition-all"
-          title="Add Task via AI"
+          className="min-h-11 bg-secondary text-white px-3 sm:px-4 py-2 rounded-xl flex items-center justify-center gap-2 neumorphic-raised active:scale-95 transition-all"
+          aria-label="Add event"
         >
-          <span className="material-symbols-outlined text-[20px]">add</span>
+          <span className="material-symbols-outlined text-[20px]" aria-hidden="true">add</span>
           <span className="text-[12px] font-semibold uppercase tracking-wider">Add Event</span>
         </button>
       </header>
 
-      <main className="px-6 pb-32 max-w-[390px] md:max-w-5xl mx-auto">
-        {/* Page Header */}
-        <section className="mt-8 mb-4 md:mb-8">
-          <h1 className="text-[32px] font-bold text-primary">Calendar</h1>
-          <p className="text-text-secondary text-[16px]">Your semester timeline</p>
+      <main className="px-6 pb-8 w-full max-w-5xl mx-auto">
+        <section className="mt-6 mb-4 md:mb-8 md:hidden">
+          <p className="text-text-secondary text-sm">Your semester timeline</p>
         </section>
 
         <div className="md:grid md:grid-cols-12 md:gap-8 flex flex-col">
@@ -237,7 +229,7 @@ export function Calendar({ tasks: allTasks, loading, onAddTask }: CalendarProps)
                   <h3 className="text-[12px] font-semibold text-outline uppercase tracking-widest pl-2">
                     {dateStr}
                   </h3>
-                  <div className="bg-background-base p-6 rounded-[20px] neumorphic-raised flex items-center justify-between group cursor-pointer hover:translate-y-[-2px] transition-transform">
+                  <div className="bg-background-base p-6 rounded-[20px] neumorphic-raised flex items-center justify-between">
                     <div className="flex gap-4 items-start">
                       <div
                         className={`p-3 rounded-xl ${
@@ -326,8 +318,12 @@ export function Calendar({ tasks: allTasks, loading, onAddTask }: CalendarProps)
                 <p className="text-[16px] text-on-surface-variant mb-6">
                   Sync your entire university schedule in seconds. We support PDF, CSV, and direct portal imports.
                 </p>
-                <button className="w-full md:w-auto bg-primary text-white px-8 py-3 rounded-xl neumorphic-raised hover:bg-primary/90 transition-all active:scale-95 text-[12px] font-semibold uppercase tracking-wider">
-                  UPLOAD TIMETABLE
+                <button
+                  type="button"
+                  onClick={onUploadTimetable}
+                  className="w-full md:w-auto min-h-11 bg-primary text-white px-8 py-3 rounded-xl neumorphic-raised hover:bg-primary/90 transition-all active:scale-95 text-[12px] font-semibold uppercase tracking-wider"
+                >
+                  Upload timetable
                 </button>
               </div>
             </div>

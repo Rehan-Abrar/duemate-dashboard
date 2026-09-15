@@ -20,16 +20,12 @@ export function Profile({ user, tasks, onLogout, onNavigateTimetable, availableS
   });
 
   return (
-    <div className="max-w-[390px] md:max-w-5xl mx-auto min-h-screen pb-32 md:pb-12 overflow-x-hidden bg-background-base">
-      {/* Top App Bar (Desktop Only) */}
-      <header className="hidden md:flex bg-background-base w-full top-0 sticky z-50 items-center justify-between px-6 h-16">
+    <div className="w-full max-w-5xl mx-auto min-h-screen pb-12 bg-background-base">
+      <header className="hidden md:flex bg-background-base w-full top-0 sticky z-50 items-center px-6 h-16">
         <div className="flex flex-col">
           <h1 className="text-[20px] font-bold text-primary">Profile</h1>
           <p className="text-[12px] text-on-surface-variant/70 leading-none">My DueMate</p>
         </div>
-        <button className="active:scale-95 transition-transform duration-200 hover:opacity-80">
-          <span className="material-symbols-outlined text-secondary text-[24px]">settings</span>
-        </button>
       </header>
 
       <main className="px-6 pt-4 space-y-8 md:space-y-0 md:grid md:grid-cols-2 md:gap-8">
@@ -153,51 +149,6 @@ export function Profile({ user, tasks, onLogout, onNavigateTimetable, availableS
 
         {/* Right Column */}
         <div className="space-y-8">
-        {/* Preferences */}
-        <section className="space-y-4">
-          <div className="neumorphic-raised rounded-[20px] overflow-hidden">
-            {[
-              { icon: "notifications", label: "Notifications" },
-              { icon: "alarm", label: "Reminder Preferences" },
-              { icon: "light_mode", label: "Theme" },
-              { icon: "language", label: "Language" },
-            ].map((item, i, arr) => (
-              <button
-                key={item.label}
-                className={`w-full flex items-center justify-between p-4 hover:bg-white/10 transition-colors active:scale-[0.98] ${
-                  i < arr.length - 1 ? "border-b border-white/20" : ""
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-on-surface-variant">{item.icon}</span>
-                  <span className="text-[16px] text-on-surface">{item.label}</span>
-                </div>
-                <span className="material-symbols-outlined text-on-surface-variant/40">chevron_right</span>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section className="grid grid-cols-2 gap-4">
-          {[
-            { icon: "help", label: "Help Center", href: "https://github.com/" },
-            { icon: "verified_user", label: "Privacy Policy", href: "https://www.termsfeed.com/live/sample-privacy-policy" },
-            { icon: "description", label: "Terms", href: "https://www.termsfeed.com/live/sample-terms-of-service" },
-            { icon: "chat_bubble", label: "Support", href: `https://wa.me/${user.phone_number?.replace(/\D/g,"")}?text=Hi%20DueMate%20support%2C%20I%20need%20help` },
-          ].map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="neumorphic-raised p-4 rounded-xl flex flex-col items-center gap-2 hover:opacity-80 transition-opacity active:scale-95 text-center no-underline"
-            >
-              <span className="material-symbols-outlined text-secondary">{item.icon}</span>
-              <span className="text-xs font-semibold text-on-surface">{item.label}</span>
-            </a>
-          ))}
-        </section>
-
         {/* Log Out */}
         <section className="flex justify-center pt-4 pb-8">
           <button

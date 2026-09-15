@@ -42,8 +42,13 @@ function UploadStep({
       {/* Header */}
       <header className="w-full top-0 sticky z-50 bg-background-base shadow-[6px_6px_12px_#d1d9e6,-6px_-6px_12px_#ffffff] flex items-center justify-between px-6 h-16">
         <div className="flex items-center gap-2">
-          <button onClick={onBack} className="active:scale-95 transition-transform flex items-center justify-center">
-            <span className="material-symbols-outlined text-secondary text-[24px]">arrow_back</span>
+          <button
+            type="button"
+            onClick={onBack}
+            aria-label="Go back"
+            className="min-w-11 min-h-11 active:scale-95 transition-transform flex items-center justify-center"
+          >
+            <span className="material-symbols-outlined text-secondary text-[24px]" aria-hidden="true">arrow_back</span>
           </button>
           <span
             className="material-symbols-outlined text-secondary text-[24px]"
@@ -55,7 +60,7 @@ function UploadStep({
         </div>
       </header>
 
-      <main className="px-6 pt-8 pb-32 space-y-8">
+      <main className="px-6 pt-8 pb-8 space-y-8">
         {/* Hero */}
         <section className="text-center space-y-4">
           <div className="w-20 h-20 mx-auto neumorphic-raised rounded-3xl flex items-center justify-center">
@@ -74,20 +79,19 @@ function UploadStep({
 
         {/* Drop Zone */}
         <section>
-          <div
+          <label
             className={`neumorphic-inset rounded-[20px] p-8 flex flex-col items-center text-center border-2 border-dashed transition-all cursor-pointer ${
               dragOver ? "border-secondary bg-highlight-soft/30" : "border-outline/30"
             }`}
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()}
           >
             <input
               ref={fileInputRef}
               type="file"
               accept=".pdf"
-              className="hidden"
+              className="sr-only"
               onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
             />
             {selectedFile ? (
@@ -113,7 +117,7 @@ function UploadStep({
                 </span>
               </>
             )}
-          </div>
+          </label>
         </section>
 
         {/* How it works */}
@@ -136,11 +140,12 @@ function UploadStep({
       </main>
 
       {/* Bottom CTA */}
-      <div className="fixed md:absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] md:max-w-full p-6 bg-background-base shadow-[0_-4px_10px_rgba(0,0,0,0.05)] md:rounded-b-[32px]">
+      <div className="sticky bottom-0 w-full p-6 bg-background-base shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
         <button
+          type="button"
           disabled={!selectedFile}
           onClick={onNext}
-          className="w-full h-14 bg-secondary text-white rounded-2xl font-bold text-[18px] flex items-center justify-center gap-3 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-[4px_4px_10px_rgba(0,81,213,0.3)]"
+          className="w-full min-h-14 h-14 bg-secondary text-white rounded-2xl font-bold text-[18px] flex items-center justify-center gap-3 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-[4px_4px_10px_rgba(0,81,213,0.3)]"
         >
           Process Timetable
           <span className="material-symbols-outlined">arrow_forward</span>
@@ -326,7 +331,7 @@ function ChooseClassStep({
         </div>
       </header>
 
-      <main className="flex-1 px-6 pt-8 pb-40 space-y-8 max-w-[390px] mx-auto w-full">
+      <main className="flex-1 px-6 pt-8 pb-8 space-y-8 w-full max-w-lg mx-auto">
         {/* Success Banner */}
         <section>
           <div className="neumorphic-raised rounded-3xl p-6 text-center">
@@ -351,9 +356,12 @@ function ChooseClassStep({
             Select your class
           </label>
           <div className="relative">
-            <div
-              className="neumorphic-inset w-full h-14 rounded-2xl px-5 flex items-center justify-between cursor-pointer"
+            <button
+              type="button"
+              className="neumorphic-inset w-full min-h-14 h-14 rounded-2xl px-5 flex items-center justify-between"
               onClick={() => setIsOpen(!isOpen)}
+              aria-expanded={isOpen}
+              aria-haspopup="listbox"
             >
               <span className={`text-[16px] ${selected ? "text-secondary font-bold" : "text-on-surface-variant"}`}>
                 {selected ?? "Search or select class..."}
@@ -364,7 +372,7 @@ function ChooseClassStep({
               >
                 expand_more
               </span>
-            </div>
+            </button>
 
             {isOpen && (
               <div className="absolute top-16 left-0 w-full z-40 neumorphic-raised rounded-2xl overflow-hidden">
@@ -435,11 +443,12 @@ function ChooseClassStep({
       </main>
 
       {/* Bottom CTA */}
-      <div className="fixed md:absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] md:max-w-full p-6 bg-background-base md:rounded-b-[32px]">
+      <div className="sticky bottom-0 w-full p-6 bg-background-base">
         <button
+          type="button"
           disabled={!selected || isSelecting}
           onClick={handleContinue}
-          className="w-full h-16 bg-secondary text-white rounded-2xl font-bold text-[18px] flex items-center justify-center gap-3 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-[6px_6px_12px_rgba(0,81,213,0.3)]"
+          className="w-full min-h-14 h-16 bg-secondary text-white rounded-2xl font-bold text-[18px] flex items-center justify-center gap-3 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-[6px_6px_12px_rgba(0,81,213,0.3)]"
         >
           {isSelecting ? (
             <>
@@ -503,10 +512,11 @@ function ImportedStep({ section, onDone }: { section: string; onDone: () => void
       </main>
 
       {/* Bottom CTA */}
-      <div className="fixed md:absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] md:max-w-full p-6 bg-background-base md:rounded-b-[32px]">
+      <div className="sticky bottom-0 w-full p-6 bg-background-base">
         <button
+          type="button"
           onClick={onDone}
-          className="w-full h-14 bg-secondary text-white rounded-2xl font-bold text-[18px] flex items-center justify-center gap-3 active:scale-95 transition-all shadow-[4px_4px_10px_rgba(0,81,213,0.3)]"
+          className="w-full min-h-14 h-14 bg-secondary text-white rounded-2xl font-bold text-[18px] flex items-center justify-center gap-3 active:scale-95 transition-all shadow-[4px_4px_10px_rgba(0,81,213,0.3)]"
         >
           View My Timetable
           <span className="material-symbols-outlined">arrow_forward</span>
@@ -535,7 +545,7 @@ export function UploadTimetable({ onComplete, onBack, preloadedSections }: Uploa
   }
 
   return (
-    <div className="max-w-[390px] md:max-w-2xl mx-auto min-h-screen md:min-h-0 bg-background-base md:my-12 md:neumorphic-raised md:rounded-[32px] relative flex flex-col">
+    <div className="w-full max-w-2xl mx-auto min-h-0 bg-background-base md:my-8 md:neumorphic-raised md:rounded-[32px] relative flex flex-col">
       {/* Error banner (shown above upload step if processing failed) */}
       {step === "upload" && errorMessage && (
         <div className="mx-6 mt-4 p-4 bg-danger/10 border border-danger/20 rounded-2xl flex items-start gap-3">

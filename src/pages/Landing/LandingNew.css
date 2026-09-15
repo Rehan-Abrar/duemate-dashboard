@@ -1,0 +1,30 @@
+/*
+ * DueMate — New Landing Page Styles
+ *
+ * Scoped to .landing-new so they don't affect the rest of the app.
+ * Converted from Tailwind v4 @theme to v3-compatible CSS.
+ */
+
+/* ── Scoped border-radius overrides (design uses larger radii than TW defaults) ── */
+.landing-new .rounded-sm  { border-radius: 8px; }
+.landing-new .rounded-md  { border-radius: 12px; }
+.landing-new .rounded-lg  { border-radius: 16px; }
+.landing-new .rounded-xl  { border-radius: 22px; }
+.landing-new .rounded-2xl { border-radius: 28px; }
+.landing-new .rounded-3xl { border-radius: 36px; }
+
+/* Corner-specific overrides */
+.landing-new .rounded-tl-sm { border-top-left-radius: 8px; }
+.landing-new .rounded-br-sm { border-bottom-right-radius: 8px; }
+
+/* ── Base styles scoped to landing page ── */
+.landing-new {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.landing-new ::selection {
+  background: #2549e8;
+  color: #fff;
+}

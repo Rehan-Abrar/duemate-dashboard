@@ -123,7 +123,7 @@ export function OTPVerification({ phoneNumber, onBack, onSuccess }: OTPVerificat
   return (
     <div className="flex justify-center min-h-screen bg-[#EAF0F8] md:items-center">
       {/* Container */}
-      <div className="w-full max-w-[390px] md:max-w-lg min-h-screen md:min-h-0 flex flex-col bg-[#EAF0F8] relative overflow-hidden pb-8 text-left md:neumorphic-raised md:rounded-[32px] md:p-4">
+      <div className="w-full max-w-md md:max-w-lg min-h-screen md:min-h-0 flex flex-col bg-[#EAF0F8] relative pb-8 text-left md:neumorphic-raised md:rounded-[32px] md:p-4">
         {/* Header */}
         <header className="w-full h-16 flex items-center justify-between px-6 md:px-2 sticky top-0 bg-[#EAF0F8]/80 backdrop-blur-md z-50 md:relative md:bg-transparent md:backdrop-blur-none">
           <div className="flex items-center gap-2">
@@ -186,21 +186,27 @@ export function OTPVerification({ phoneNumber, onBack, onSuccess }: OTPVerificat
               </div>
             )}
 
-            {/* OTP Input Card */}
-            <section className="mt-6 neumorphic-raised bg-[#EAF0F8] rounded-2xl p-6">
+            <section className="mt-6 neumorphic-raised bg-[#EAF0F8] rounded-2xl p-4 sm:p-6">
+              <p id="otp-label" className="sr-only">
+                Six-digit verification code
+              </p>
               <div
-                className="flex justify-between items-center gap-2"
+                className="flex justify-between items-center gap-1.5 sm:gap-2"
                 onPaste={handleOtpPaste}
+                role="group"
+                aria-labelledby="otp-label"
               >
                 {otp.map((digit, index) => (
                   <input
                     key={index}
                     ref={(el) => (inputRefs.current[index] = el)}
-                    className="otp-input w-11 h-14 bg-[#EAF0F8] border-none rounded-xl text-center text-xl font-bold text-deep-navy neumorphic-inset focus:ring-2 focus:ring-secondary transition-all"
+                    className="otp-input min-w-0 flex-1 max-w-12 aspect-[11/14] h-12 sm:h-14 bg-[#EAF0F8] border-none rounded-xl text-center text-lg sm:text-xl font-bold text-deep-navy neumorphic-inset focus:ring-2 focus:ring-secondary transition-all"
                     maxLength={1}
                     pattern="\d*"
                     type="text"
                     inputMode="numeric"
+                    autoComplete="one-time-code"
+                    aria-label={`Digit ${index + 1} of 6`}
                     value={digit}
                     onChange={(e) => handleOtpChange(index, e.target.value)}
                     onKeyDown={(e) => handleOtpKeyDown(index, e)}

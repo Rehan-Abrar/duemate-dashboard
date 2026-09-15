@@ -1,5 +1,5 @@
 import { Loader } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "../../lib/utils";
 
 export interface SpinnerProps {
@@ -200,23 +200,31 @@ export const Dots_v3 = (_props: SpinnerProps) => {
   );
 };
 
-export const Dots_v4 = (_props: SpinnerProps) => (
-  <div className="flex items-center justify-center space-x-2">
-    {[...Array(3)].map((_, index) => (
-      <motion.span
-        key={index}
-        className="size-3.5 rounded-full bg-[#2563EB]"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{
-          delay: index * 0.2,
-          duration: 1.2,
-          repeat: Infinity,
-        }}
-      ></motion.span>
-    ))}
-  </div>
-);
+export const Dots_v4 = (_props: SpinnerProps) => {
+  const reduceMotion = useReducedMotion();
+
+  return (
+    <div className="flex items-center justify-center space-x-2" role="status" aria-label="Loading...">
+      {[...Array(3)].map((_, index) => (
+        <motion.span
+          key={index}
+          className="size-3.5 rounded-full bg-[#2563EB]"
+          initial={{ opacity: reduceMotion ? 1 : 0.35 }}
+          animate={{ opacity: 1 }}
+          transition={
+            reduceMotion
+              ? { duration: 0 }
+              : {
+                  delay: index * 0.2,
+                  duration: 1.2,
+                  repeat: Infinity,
+                }
+          }
+        ></motion.span>
+      ))}
+    </div>
+  );
+};
 
 export const Dots_v5 = (_props: SpinnerProps) => {
   const dots = 8;

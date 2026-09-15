@@ -201,30 +201,10 @@ export function WhatsAppActivation({
       </main>
 
       {/* Footer */}
-      <footer className="w-full max-w-4xl px-6 py-10 mt-auto flex flex-col md:flex-row items-center justify-between border-t border-deep-navy/5">
-        <p className="text-text-secondary text-sm mb-4 md:mb-0">
-          © 2024 DueMate AI. Built for students.
+      <footer className="w-full max-w-4xl px-6 py-10 mt-auto flex justify-center border-t border-deep-navy/5">
+        <p className="text-text-secondary text-sm">
+          © 2026 DueMate. Built for students.
         </p>
-        <div className="flex items-center gap-8">
-          <a
-            className="text-xs font-semibold uppercase tracking-wider text-deep-navy hover:text-electric-blue transition-colors"
-            href="#"
-          >
-            Privacy Policy
-          </a>
-          <a
-            className="text-xs font-semibold uppercase tracking-wider text-deep-navy hover:text-electric-blue transition-colors"
-            href="#"
-          >
-            Terms of Service
-          </a>
-          <a
-            className="text-xs font-semibold uppercase tracking-wider text-deep-navy hover:text-electric-blue transition-colors"
-            href="#"
-          >
-            Help Center
-          </a>
-        </div>
       </footer>
     </div>
   );

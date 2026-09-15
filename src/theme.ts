@@ -1,36 +1,29 @@
 /**
  * DueMate Theme System
- * 
- * AESTHETIC DIRECTION: "Focused Academic"
+ *
+ * AESTHETIC DIRECTION: Cloud-blue neumorphic (shipped UI)
  * ═══════════════════════════════════════════════════════════════════════════════
- * 
- * A warm, sophisticated dark theme designed for students under deadline pressure.
- * 
- * The color palette draws from late-night study sessions — warm amber task lights,
- * soft purple focus zones, and crisp white text that doesn't strain the eyes.
- * 
+ *
+ * Soft cloud-blue surfaces (#EAF0F8), deep navy text (#0F172A), and electric-blue
+ * accent (#2563EB). Raised / inset shadows — not glassmorphism or generic SaaS.
+ *
  * Design principles:
  * - Calm urgency: Tasks feel important without inducing panic
- * - Clear hierarchy: Critical info (deadlines, course names) stands out instantly
- * - Mobile-first: Large touch targets, readable at arm's length
- * - Accessible: WCAG AA contrast ratios, distinct color coding
- * 
+ * - Clear hierarchy: Deadlines and course names stand out instantly
+ * - First-class phone and desktop layouts (not a 390px artboard)
+ * - Accessible: WCAG AA contrast, visible focus, reduced-motion support
+ *
  * Typography:
- * - Display: Space Grotesk — geometric, modern, slightly technical
- * - Body: Inter — highly readable at small sizes, excellent on mobile
- * - Mono: JetBrains Mono — for raw message display, distinct from body text
- * 
- * The warm amber (#F5A623) serves as the brand color — energetic but not alarming.
- * It appears on primary buttons, active states, and key focus elements.
- * 
- * Urgency is communicated through saturation, not red/green extremes:
- * - Overdue: Deep coral (#FF6B6B) — warm, urgent, but not screaming red
- * - Due today: Amber (#F5A623) — matches brand, naturally draws attention
- * - Due soon: Muted lavender (#A78BFA) — signals upcoming without stress
- * 
- * This theme can be fully customized by editing the values below.
- * No colors, fonts, or spacing values should be hardcoded elsewhere.
- * 
+ * - Display / body: Inter — readable at small sizes on phones
+ * - Mono: JetBrains Mono — raw messages / code only
+ *
+ * Semantic urgency (do not invent extra hues):
+ * - Overdue: danger (#EF4444)
+ * - Due today: warning (#F59E0B)
+ * - Due soon: brand (#2563EB)
+ * - Completed: success (#10B981)
+ *
+ * Prefer these tokens over hardcoded hex in new UI.
  * ═══════════════════════════════════════════════════════════════════════════════
  */
 
