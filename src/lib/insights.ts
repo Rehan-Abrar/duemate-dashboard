@@ -12,6 +12,7 @@
  */
 
 import type { Task } from "../types";
+import { taskHeading } from "./taskHeading";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // WORKLOAD ANALYSIS
@@ -97,7 +98,7 @@ export function analyzeWorkload(tasks: Task[]): WorkloadAnalysis {
     hasUrgentTasks: overdue.length > 0 || dueToday.length > 0,
     nextDeadline,
     nextDeadlineCourse: nextTask?.parsed_course ?? null,
-    nextDeadlineTitle: nextTask?.parsed_title ?? null,
+    nextDeadlineTitle: nextTask ? taskHeading(nextTask) : null,
   };
 }
 

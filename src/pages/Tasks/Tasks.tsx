@@ -8,6 +8,7 @@ import {
   getTaskEmptyState,
   getTasksSubtitle,
 } from "../../lib/insights";
+import { taskHeading } from "../../lib/taskHeading";
 
 interface TasksProps {
   user: User;
@@ -181,7 +182,7 @@ export function Tasks({ tasks, loading, refreshTasks, onNavigate, onAddTask }: T
                         isCompleted ? "line-through" : ""
                       }`}
                     >
-                      {task.parsed_title || "Untitled Task"}
+                      {taskHeading(task)}
                     </h3>
                     <div className="flex items-center text-text-secondary text-[14px] mt-1">
                       <span className="material-symbols-outlined text-[18px] mr-1">

@@ -8,6 +8,7 @@ import {
   getDueSoonLabel,
   getTimeGreeting,
 } from "../../lib/insights";
+import { taskHeading } from "../../lib/taskHeading";
 
 interface DashboardProps {
   tasks: Task[];
@@ -297,7 +298,7 @@ export function Dashboard({ tasks, loading, onNavigate }: DashboardProps) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-bold text-slate-900 truncate capitalize">
-                      {task.parsed_title || "Untitled Task"}
+                      {taskHeading(task)}
                     </h4>
                     <p className="text-xs text-slate-500">
                       {task.parsed_due_date ? new Date(task.parsed_due_date).toLocaleDateString() : "No date"}

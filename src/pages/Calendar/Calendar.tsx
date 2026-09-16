@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import type { Task, User } from "../../types";
 import { RoundSpinner } from "../../components/ui/spinner";
 import { analyzeWorkload, getCalendarInsight } from "../../lib/insights";
+import { taskHeading } from "../../lib/taskHeading";
 
 interface CalendarProps {
   user: User;
@@ -249,7 +250,7 @@ export function Calendar({ tasks: allTasks, loading, onAddTask, onUploadTimetabl
                           {task.parsed_course || "Course"}
                         </span>
                         <h4 className="text-[20px] font-bold text-on-surface capitalize">
-                          {task.parsed_title || "Untitled Task"}
+                          {taskHeading(task)}
                         </h4>
                         <div className="flex items-center gap-2 mt-2">
                           <span className="material-symbols-outlined text-[16px] text-outline">
