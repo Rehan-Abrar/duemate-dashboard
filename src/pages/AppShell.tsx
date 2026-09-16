@@ -13,6 +13,7 @@ import { SectionSetup } from "./SectionSetup/SectionSetup";
 import { AdminTimetable } from "./Admin/AdminTimetable";
 import { AdminMessages } from "./Admin/AdminMessages";
 import { AdminUsers } from "./Admin/AdminUsers";
+import { AdminAiMonitor } from "./Admin/AdminAiMonitor";
 import { canShowAdminModeUi, isAdminModeEnabled, clearAdminSession } from "../auth";
 
 interface AppShellProps {
@@ -21,7 +22,7 @@ interface AppShellProps {
   onUserUpdated?: (user: User) => void;
 }
 
-type Tab = "home" | "tasks" | "calendar" | "timetable" | "assistant" | "profile" | "admin-timetable" | "admin-users" | "admin-messages";
+type Tab = "home" | "tasks" | "calendar" | "timetable" | "assistant" | "profile" | "admin-timetable" | "admin-users" | "admin-messages" | "admin-ai-monitor";
 type ModalView = null | "upload-timetable" | "change-class" | "change-official-class";
 
 export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
@@ -147,7 +148,7 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
     if (!enabled) {
       clearAdminSession();
       setAdminMode(false);
-      if (activeTab === "admin-timetable" || activeTab === "admin-users" || activeTab === "admin-messages") {
+      if (activeTab === "admin-timetable" || activeTab === "admin-users" || activeTab === "admin-messages" || activeTab === "admin-ai-monitor") {
         setActiveTab("profile");
       }
       return;
@@ -230,6 +231,12 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
                   setInboxWaId(null);
                   goToTab("admin-messages");
                 }}
+              />
+              <DesktopNavItem
+                icon="monitoring"
+                label="AI Monitor"
+                isActive={activeTab === "admin-ai-monitor" && !modalView}
+                onClick={() => goToTab("admin-ai-monitor")}
               />
             </div>
           )}
@@ -360,6 +367,12 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
                   goToTab("admin-messages");
                 }}
               />
+              <DesktopNavItem
+                icon="monitoring"
+                label="AI Monitor"
+                isActive={activeTab === "admin-ai-monitor" && !modalView}
+                onClick={() => goToTab("admin-ai-monitor")}
+              />
             </div>
             )}
 
@@ -464,6 +477,14 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
       )}
       {!modalView && activeTab === "admin-messages" && adminMode && (
         <AdminMessages initialWaId={inboxWaId} />
+      )}
+      {!modalView && activeTab === "admin-ai-monitor" && adminMode && (
+        <AdminAiMonitor
+          onViewMessages={(waId) => {
+            setInboxWaId(waId);
+            goToTab("admin-messages");
+          }}
+        />
       )}
       {!modalView && activeTab === "profile" && (
         <Profile

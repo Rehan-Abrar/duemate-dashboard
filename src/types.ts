@@ -223,6 +223,74 @@ export interface AdminInboxMessagesResponse {
   pages: number;
 }
 
+export interface AdminAiProviderCount {
+  provider: string | null;
+  credential_slot: string | null;
+  model: string | null;
+  label: string;
+  count: number;
+}
+
+export interface AdminAiSummary {
+  requests: number;
+  successful: number;
+  failed: number;
+  avg_latency_ms: number | null;
+  fallbacks: number;
+  providers: AdminAiProviderCount[];
+  since: string | null;
+  until: string | null;
+}
+
+export interface AdminAiCallRow {
+  call_id: string;
+  created_at: string | null;
+  user_id: string | null;
+  profile_name: string | null;
+  wa_id: string | null;
+  channel: string | null;
+  stage: string;
+  caller: string | null;
+  intent: string | null;
+  action: string | null;
+  query_type: string | null;
+  task_type: string | null;
+  model: string | null;
+  provider: string | null;
+  credential_slot: string | null;
+  provider_label: string;
+  used_fallback: boolean;
+  fallback_reason: string | null;
+  fallback_attempts?: number;
+  error_type?: string | null;
+  success: boolean;
+  latency_ms: number | null;
+  prompt_version: string | null;
+  parse_method: string | null;
+  request_id: string | null;
+}
+
+export interface AdminAiCallsResponse {
+  items: AdminAiCallRow[];
+  count: number;
+  page: number;
+  limit: number;
+  pages: number;
+  since: string | null;
+  until: string | null;
+}
+
+export interface AdminAiCallDetail extends AdminAiCallRow {
+  error: string | null;
+  confidence: number | null;
+  input_tokens: number;
+  output_tokens: number;
+  total_tokens: number;
+  user_message_len: number;
+  system_prompt_hash: string | null;
+  related: AdminAiCallRow[];
+}
+
 export interface PushSubscription {
   endpoint: string;
   keys: {

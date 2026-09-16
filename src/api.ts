@@ -38,6 +38,9 @@ import type {
   AdminUsersSummary,
   AdminUsersResponse,
   AdminUserDetail,
+  AdminAiSummary,
+  AdminAiCallsResponse,
+  AdminAiCallDetail,
 } from "./types";
 import { getAuthTokens, setAuthTokens, clearAuth, getAdminToken, setAdminSession } from "./auth";
 
@@ -745,6 +748,53 @@ export const adminUsersApi = {
   },
 };
 
+export const adminAiApi = {
+  async summary(params: {
+    q?: string;
+    user?: string;
+    provider?: string;
+    model?: string;
+    stage?: string;
+    success?: string;
+    intent?: string;
+    since?: string;
+    until?: string;
+  } = {}): Promise<AdminAiSummary> {
+    const suffix = _aiMonitorQuery(params);
+    return adminRequest(`/api/admin/ai/summary${suffix}`);
+  },
+
+  async list(params: {
+    q?: string;
+    user?: string;
+    provider?: string;
+    model?: string;
+    stage?: string;
+    success?: string;
+    intent?: string;
+    since?: string;
+    until?: string;
+    page?: number;
+    limit?: number;
+  } = {}): Promise<AdminAiCallsResponse> {
+    const suffix = _aiMonitorQuery(params);
+    return adminRequest(`/api/admin/ai/calls${suffix}`);
+  },
+
+  async detail(callId: string): Promise<AdminAiCallDetail> {
+    return adminRequest(`/api/admin/ai/calls/${encodeURIComponent(callId)}`);
+  },
+};
+
+function _aiMonitorQuery(params: Record<string, string | number | undefined>): string {
+  const qs = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== "") qs.set(key, String(value));
+  }
+  const encoded = qs.toString();
+  return encoded ? `?${encoded}` : "";
+}
+
 export const adminInboxApi = {
   async summary(): Promise<AdminInboxSummary> {
     return adminRequest("/api/admin/inbox/summary");
@@ -802,4 +852,5 @@ export default {
   adminTimetable: adminTimetableApi,
   adminInbox: adminInboxApi,
   adminUsers: adminUsersApi,
+  adminAi: adminAiApi,
 };
