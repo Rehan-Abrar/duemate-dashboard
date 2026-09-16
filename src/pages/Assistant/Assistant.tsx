@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type ReactNode } from "react";
 import { assistantApi } from "../../api";
 import { tasksApi } from "../../api";
 import type { AssistantMessage, Task } from "../../types";
@@ -9,6 +9,71 @@ const SUGGESTED_PROMPTS = [
   { icon: "event_note", text: "Plan study schedule" },
   { icon: "history_edu", text: "When is my next exam?" },
 ];
+
+function renderInline(text: string, keyPrefix: string): ReactNode[] {
+  const nodes: ReactNode[] = [];
+  const re = /(\*\*[^*]+\*\*|\*[^*\n]+\*|_[^_\n]+_)/g;
+  let last = 0;
+  let match: RegExpExecArray | null;
+  let i = 0;
+  while ((match = re.exec(text)) !== null) {
+    if (match.index > last) {
+      nodes.push(text.slice(last, match.index));
+    }
+    const token = match[0];
+    if (token.startsWith("**")) {
+      nodes.push(
+        <strong key={`${keyPrefix}-b${i++}`} className="font-semibold text-slate-900">
+          {token.slice(2, -2)}
+        </strong>
+      );
+    } else if (token.startsWith("*")) {
+      nodes.push(
+        <strong key={`${keyPrefix}-s${i++}`} className="font-semibold text-slate-900">
+          {token.slice(1, -1)}
+        </strong>
+      );
+    } else {
+      nodes.push(
+        <em key={`${keyPrefix}-i${i++}`} className="italic">
+          {token.slice(1, -1)}
+        </em>
+      );
+    }
+    last = match.index + token.length;
+  }
+  if (last < text.length) {
+    nodes.push(text.slice(last));
+  }
+  return nodes.length > 0 ? nodes : [text];
+}
+
+function renderMessageContent(content: string) {
+  return content.split("\n").map((line, idx) => {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      return <div key={idx} className="h-2" />;
+    }
+
+    const bullet = trimmed.match(/^(?:[•\-–]|\*)\s+(.*)$/);
+    if (bullet) {
+      return (
+        <div key={idx} className="flex gap-2 pl-0.5 text-sm font-medium text-slate-800 leading-relaxed">
+          <span className="text-slate-400 select-none mt-px" aria-hidden="true">
+            •
+          </span>
+          <span className="min-w-0">{renderInline(bullet[1], `l${idx}`)}</span>
+        </div>
+      );
+    }
+
+    return (
+      <p key={idx} className="text-sm font-medium text-slate-800 leading-relaxed">
+        {renderInline(trimmed, `p${idx}`)}
+      </p>
+    );
+  });
+}
 
 export function Assistant() {
   const [messages, setMessages] = useState<AssistantMessage[]>([]);
@@ -23,52 +88,12 @@ export function Assistant() {
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages, loading]);
 
   const pendingTasks = tasks.filter((t) => t.status !== "completed");
   const nextTask = pendingTasks[0];
-
-  function renderMessageContent(content: string) {
-    return content.split("\n").map((line, idx) => {
-      let cleanLine = line;
-      let isBullet = false;
-      if (cleanLine.trim().startsWith("- ") || cleanLine.trim().startsWith("* ")) {
-        cleanLine = cleanLine.trim().substring(2);
-        isBullet = true;
-      }
-      
-      const boldRegex = /\*\*(.*?)\*\*/g;
-      const parts = [];
-      let lastIndex = 0;
-      let match;
-      while ((match = boldRegex.exec(cleanLine)) !== null) {
-        if (match.index > lastIndex) {
-          parts.push(cleanLine.substring(lastIndex, match.index));
-        }
-        parts.push(<strong key={match.index} className="font-bold text-slate-900">{match[1]}</strong>);
-        lastIndex = boldRegex.lastIndex;
-      }
-      if (lastIndex < cleanLine.length) {
-        parts.push(cleanLine.substring(lastIndex));
-      }
-      
-      const contentNode = parts.length > 0 ? parts : cleanLine;
-      
-      if (isBullet) {
-        return (
-          <li key={idx} className="ml-4 list-disc text-sm font-medium text-slate-800 leading-relaxed">
-            {contentNode}
-          </li>
-        );
-      }
-      return (
-        <p key={idx} className="text-sm font-medium text-slate-800 leading-relaxed min-h-[1rem]">
-          {contentNode}
-        </p>
-      );
-    });
-  }
+  const hasThread = messages.length > 0;
 
   async function sendMessage(text: string) {
     if (!text.trim() || loading) return;
@@ -103,11 +128,10 @@ export function Assistant() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto min-h-screen relative pb-28 md:pb-32 bg-background-base">
-      {/* Top App Bar (Desktop Only) */}
-      <header className="hidden md:flex w-full top-0 sticky z-50 bg-background-base/80 backdrop-blur-md h-16 justify-between items-center px-6">
+    <div className="flex-1 min-h-0 h-full flex flex-col bg-background-base">
+      <header className="hidden md:flex shrink-0 h-16 items-center justify-between px-6 lg:px-8 border-b border-white/60">
         <div className="flex flex-col">
-          <span className="text-[24px] font-bold text-secondary">DueMate</span>
+          <span className="text-xl font-bold text-secondary leading-tight">DueMate</span>
           <span className="text-[10px] uppercase tracking-wider text-on-surface-variant font-semibold">
             Academic Companion
           </span>
@@ -118,146 +142,157 @@ export function Assistant() {
         </div>
       </header>
 
-      <main className="px-6 mt-4 space-y-8">
-        {/* AI Intro Card */}
-        <section
-          className="neumorphic-raised p-6 relative overflow-hidden"
-          style={{ borderRadius: "20px" }}
-        >
-          <div className="relative z-10 flex gap-4 items-start">
-            <div className="flex-1">
-              <h1 className="text-[20px] font-bold text-primary mb-1">
-                Hi {userName} 👋
-              </h1>
-              <p className="text-[16px] text-on-surface-variant leading-relaxed">
-                I can help you manage your semester, understand deadlines, and plan your study time.
-              </p>
-            </div>
-            <div
-              className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center"
-              style={{
-                boxShadow: "0 0 20px rgba(37, 99, 235, 0.4)",
-                animation: "pulse-glow 3s infinite ease-in-out",
-              }}
+      <div className="flex-1 min-h-0 flex flex-col w-full max-w-3xl mx-auto px-4 sm:px-6">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain py-5 space-y-5">
+          {!hasThread && (
+            <section
+              className="neumorphic-raised p-5 sm:p-6 relative overflow-hidden"
+              style={{ borderRadius: "20px" }}
             >
-              <span
-                className="material-symbols-outlined text-white text-3xl"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                smart_toy
-              </span>
-            </div>
-          </div>
-          <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-highlight-soft rounded-full opacity-30 blur-2xl" />
-        </section>
-
-        {/* Suggested Prompts */}
-        {messages.length === 0 && (
-          <section className="overflow-x-auto flex gap-3 pb-2 -mx-6 px-6 scrollbar-hide">
-            {SUGGESTED_PROMPTS.map((p) => (
-              <button
-                key={p.text}
-                onClick={() => sendMessage(p.text)}
-                className="neumorphic-raised px-4 py-3 whitespace-nowrap text-[13px] font-semibold text-secondary flex items-center gap-2 active:scale-95 transition-all"
-                style={{ borderRadius: "12px" }}
-              >
-                <span className="material-symbols-outlined text-[18px]">{p.icon}</span>
-                {p.text}
-              </button>
-            ))}
-          </section>
-        )}
-
-        {/* Chat Messages */}
-        <section className="space-y-6">
-          {messages.map((msg, i) => (
-            <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-              {msg.role === "user" ? (
-                <div className="bg-blue-600 text-white px-5 py-3 max-w-[85%] md:max-w-xl shadow-md rounded-[20px] rounded-br-sm">
-                  <p className="text-sm font-medium leading-relaxed">{msg.content}</p>
+              <div className="relative z-10 flex gap-4 items-start">
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-xl font-bold text-primary mb-1">
+                    Hi {userName} 👋
+                  </h1>
+                  <p className="text-[15px] text-on-surface-variant leading-relaxed">
+                    I can help you manage your semester, understand deadlines, and plan your study time.
+                  </p>
                 </div>
-              ) : (
-                <div className="neu-raised-premium p-5 max-w-[90%] md:max-w-2xl space-y-2.5 rounded-[22px]">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="material-symbols-outlined text-blue-600 text-base">auto_awesome</span>
-                    <span className="text-xs font-bold text-blue-600">DueMate AI</span>
-                  </div>
-                  <div className="space-y-1">
-                    {renderMessageContent(msg.content)}
+                <div
+                  className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-2xl bg-secondary flex items-center justify-center"
+                  style={{
+                    boxShadow: "0 0 20px rgba(37, 99, 235, 0.4)",
+                    animation: "pulse-glow 3s infinite ease-in-out",
+                  }}
+                >
+                  <span
+                    className="material-symbols-outlined text-white text-3xl"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
+                    smart_toy
+                  </span>
+                </div>
+              </div>
+              <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-highlight-soft rounded-full opacity-30 blur-2xl" />
+            </section>
+          )}
+
+          {!hasThread && (
+            <section className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
+              {SUGGESTED_PROMPTS.map((p) => (
+                <button
+                  key={p.text}
+                  type="button"
+                  onClick={() => sendMessage(p.text)}
+                  className="neumorphic-raised px-4 py-3 whitespace-nowrap text-[13px] font-semibold text-secondary flex items-center gap-2 active:scale-95 transition-all"
+                  style={{ borderRadius: "12px" }}
+                >
+                  <span className="material-symbols-outlined text-[18px]">{p.icon}</span>
+                  {p.text}
+                </button>
+              ))}
+            </section>
+          )}
+
+          {hasThread && (
+            <section className="space-y-4">
+              {messages.map((msg, i) => (
+                <div
+                  key={`${msg.timestamp}-${i}`}
+                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  {msg.role === "user" ? (
+                    <div className="bg-blue-600 text-white px-4 py-2.5 max-w-[80%] sm:max-w-[72%] shadow-md rounded-[20px] rounded-br-sm">
+                      <p className="text-sm font-medium leading-relaxed whitespace-pre-wrap break-words">
+                        {msg.content}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="neu-raised-premium px-4 py-3.5 w-fit max-w-[92%] sm:max-w-[85%] space-y-1.5 rounded-[22px] rounded-bl-sm">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="material-symbols-outlined text-blue-600 text-base">auto_awesome</span>
+                        <span className="text-xs font-bold text-blue-600">DueMate AI</span>
+                      </div>
+                      <div className="space-y-1">{renderMessageContent(msg.content)}</div>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {loading && (
+                <div className="flex justify-start">
+                  <div className="neu-raised-premium px-4 py-3 flex items-center gap-3 rounded-[20px] rounded-bl-sm">
+                    <Dots_v4 />
+                    <span className="text-xs font-semibold text-slate-500">DueMate is thinking...</span>
                   </div>
                 </div>
               )}
-            </div>
-          ))}
-
-          {loading && (
-            <div className="flex justify-start">
-              <div className="neu-raised-premium p-4 flex items-center gap-3 rounded-[20px]">
-                <Dots_v4 />
-                <span className="text-xs font-semibold text-slate-500">DueMate is thinking...</span>
-              </div>
-            </div>
+              <div ref={messagesEndRef} />
+            </section>
           )}
-          <div ref={messagesEndRef} />
-        </section>
 
-        {/* Context Aware Card — shown only when no messages yet */}
-        {messages.length === 0 && (
-          <section className="space-y-2">
-            <h3 className="text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant px-1">
-              Based on Your Semester
-            </h3>
-            <div className="neumorphic-raised p-4 flex justify-between divide-x divide-outline/10" style={{ borderRadius: "20px" }}>
-              <div className="flex-1 px-2 text-center">
-                <div className="text-[20px] font-bold text-secondary">{pendingTasks.length}</div>
-                <div className="text-[10px] font-bold text-on-surface-variant uppercase">Deadlines</div>
-              </div>
-              <div className="flex-1 px-2 text-center">
-                <div className="text-[13px] font-bold text-primary line-clamp-1 leading-tight mt-1 capitalize">
-                  {nextTask?.parsed_course ?? "—"}
+          {!hasThread && (
+            <section className="space-y-2">
+              <h3 className="text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant px-1">
+                Based on Your Semester
+              </h3>
+              <div className="neumorphic-raised p-4 flex justify-between divide-x divide-outline/10" style={{ borderRadius: "20px" }}>
+                <div className="flex-1 px-2 text-center">
+                  <div className="text-[20px] font-bold text-secondary">{pendingTasks.length}</div>
+                  <div className="text-[10px] font-bold text-on-surface-variant uppercase">Deadlines</div>
                 </div>
-                <div className="text-[10px] font-bold text-on-surface-variant uppercase">Next Task</div>
-              </div>
-              <div className="flex-1 px-2 text-center">
-                <div className="text-[13px] font-bold text-danger mt-1 uppercase">
-                  {nextTask?.parsed_due_date
-                    ? new Date(nextTask.parsed_due_date).toLocaleDateString("en-US", { weekday: "short" })
-                    : "—"}
+                <div className="flex-1 px-2 text-center">
+                  <div className="text-[13px] font-bold text-primary line-clamp-1 leading-tight mt-1 capitalize">
+                    {nextTask?.parsed_course ?? "—"}
+                  </div>
+                  <div className="text-[10px] font-bold text-on-surface-variant uppercase">Next Task</div>
                 </div>
-                <div className="text-[10px] font-bold text-on-surface-variant uppercase">Due</div>
+                <div className="flex-1 px-2 text-center">
+                  <div className="text-[13px] font-bold text-danger mt-1 uppercase">
+                    {nextTask?.parsed_due_date
+                      ? new Date(nextTask.parsed_due_date).toLocaleDateString("en-US", { weekday: "short" })
+                      : "—"}
+                  </div>
+                  <div className="text-[10px] font-bold text-on-surface-variant uppercase">Due</div>
+                </div>
               </div>
-            </div>
-          </section>
-        )}
-      </main>
+            </section>
+          )}
 
-      {/* Message Input Bar (Fixed) */}
-      <div
-        className="fixed bottom-0 md:bottom-6 left-1/2 -translate-x-1/2 w-full max-w-4xl px-4 sm:px-6 pb-[max(1rem,env(safe-area-inset-bottom))]"
-        style={{ background: "linear-gradient(to top, #F6F4F0 60%, transparent)" }}
-      >
-        <div className="neumorphic-inset h-14 flex items-center px-4 gap-3">
-          <label htmlFor="assistant-message" className="sr-only">
-            Message DueMate
-          </label>
-          <input
-            id="assistant-message"
-            className="flex-1 bg-transparent border-none focus:ring-0 text-sm font-medium placeholder:text-outline/60 text-primary min-w-0"
-            placeholder="Ask DueMate anything..."
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage(input)}
-          />
-          <button
-            type="button"
-            className="min-w-11 min-h-11 rounded-xl bg-secondary flex items-center justify-center shadow-md active:scale-95 transition-transform"
-            onClick={() => sendMessage(input)}
-            aria-label="Send message"
-          >
-            <span className="material-symbols-outlined text-white" aria-hidden="true">send</span>
-          </button>
+          {!hasThread && <div ref={messagesEndRef} />}
         </div>
+
+        <form
+          className="shrink-0 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:pb-5"
+          onSubmit={(e) => {
+            e.preventDefault();
+            sendMessage(input);
+          }}
+        >
+          <div className="neumorphic-inset h-14 flex items-center px-3 sm:px-4 gap-2 sm:gap-3 rounded-2xl">
+            <label htmlFor="assistant-message" className="sr-only">
+              Message DueMate
+            </label>
+            <input
+              id="assistant-message"
+              className="assistant-composer-input text-sm font-medium placeholder:text-outline/60 text-primary"
+              placeholder="Ask DueMate anything..."
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              disabled={loading}
+              autoComplete="off"
+            />
+            <button
+              type="submit"
+              className="min-w-11 min-h-11 shrink-0 rounded-xl bg-secondary flex items-center justify-center shadow-md active:scale-95 transition-transform disabled:opacity-40 disabled:pointer-events-none"
+              disabled={loading || !input.trim()}
+              aria-label="Send message"
+            >
+              <span className="material-symbols-outlined text-white" aria-hidden="true">send</span>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

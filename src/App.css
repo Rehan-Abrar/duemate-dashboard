@@ -592,7 +592,21 @@ dialog.duemate-dialog::backdrop {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-/* OTP input focus ring (overrides global input reset) */
+input.assistant-composer-input[type="text"],
+input.assistant-composer-input[type="text"]:focus {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  width: auto;
+  min-width: 0;
+  flex: 1 1 auto;
+  border-radius: 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
 .otp-input {
   appearance: none;
   -webkit-appearance: none;

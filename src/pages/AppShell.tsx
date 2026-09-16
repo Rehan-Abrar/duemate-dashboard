@@ -166,17 +166,17 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
 
   // ── Main App Shell ─────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-background-base flex flex-col md:flex-row overflow-x-hidden">
-      {/* Desktop Navigation Sidebar */}
-      <nav className="hidden md:flex flex-col w-64 h-screen sticky top-0 bg-surface-neumorphic shadow-[6px_0_12px_rgba(0,0,0,0.05)] py-8 px-4 z-50">
-        <div className="flex items-center gap-3 mb-12 px-2">
+    <div className="h-dvh bg-background-base flex flex-col md:flex-row overflow-hidden">
+      {/* Desktop Navigation Sidebar — viewport-fixed; main pane scrolls independently */}
+      <nav className="hidden md:flex flex-col w-64 h-full shrink-0 bg-surface-neumorphic shadow-[6px_0_12px_rgba(0,0,0,0.05)] py-8 px-4 z-50">
+        <div className="flex items-center gap-3 mb-12 px-2 shrink-0">
           <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center shadow-lg">
             <span className="material-symbols-outlined text-white text-2xl">auto_awesome</span>
           </div>
           <span className="text-2xl font-bold text-primary tracking-tight">DueMate</span>
         </div>
         
-        <div className="flex flex-col gap-2 flex-1">
+        <div className="flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto">
           <DesktopNavItem
             icon="home"
             label="Home"
@@ -235,7 +235,7 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
           )}
         </div>
 
-        <div className="mt-auto">
+        <div className="mt-auto pt-4 shrink-0">
           <DesktopNavItem
             icon="person"
             label="Profile"
@@ -246,7 +246,7 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
       </nav>
 
       {/* Mobile Top App Bar */}
-      <header className="md:hidden sticky top-0 z-40 bg-background-base w-full h-16 flex items-center px-4 shadow-[0_4px_12px_rgba(209,217,230,0.4)]">
+      <header className="md:hidden shrink-0 z-40 bg-background-base w-full h-16 flex items-center px-4 shadow-[0_4px_12px_rgba(209,217,230,0.4)]">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -387,7 +387,13 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
       </div>
 
       {/* Dynamic Content */}
-      <main className="flex-1 min-h-screen min-w-0">
+      <main
+        className={`flex-1 min-h-0 min-w-0 ${
+          !modalView && activeTab === "assistant"
+            ? "overflow-hidden flex flex-col"
+            : "overflow-y-auto"
+        }`}
+      >
       {modalView === "upload-timetable" && (
         <UploadTimetable
           onComplete={handleTimetableComplete}
