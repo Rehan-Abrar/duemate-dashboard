@@ -20,7 +20,7 @@ export default function Hero({ onGetStarted }: { onGetStarted: () => void }) {
           <div className="lg:col-span-7">
             <span className="inline-flex items-center gap-2 rounded-full border border-line bg-paper-raise px-3 py-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-wa" />
-              <Eyebrow>For Riphah University · BSCS</Eyebrow>
+              <Eyebrow>For Riphah University students</Eyebrow>
             </span>
 
             <h1 className="mt-7 text-display font-semibold text-ink">
@@ -35,9 +35,9 @@ export default function Hero({ onGetStarted }: { onGetStarted: () => void }) {
             </h1>
 
             <p className="mt-7 max-w-[52ch] text-lead text-muted">
-              WhatsApp reminders for university students. Import a Riphah
-              timetable, keep quizzes and assignments in one place, and get
-              nudged before they are due.
+              A WhatsApp deadline assistant for university students. Keep your
+              timetable, quizzes, assignments, and reminders in one place —
+              then get notified before something is due.
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-3">
@@ -48,9 +48,9 @@ export default function Hero({ onGetStarted }: { onGetStarted: () => void }) {
             </div>
 
             <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-6">
-              <TrustLine>You message the bot first</TrustLine>
-              <TrustLine>Reminders only</TrustLine>
-              <TrustLine>No unsolicited messages</TrustLine>
+              <TrustLine>You stay in control</TrustLine>
+              <TrustLine>Academic reminders</TrustLine>
+              <TrustLine>No marketing messages</TrustLine>
             </div>
           </div>
 

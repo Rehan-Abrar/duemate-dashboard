@@ -2,6 +2,16 @@ import { useState } from "react";
 import type { Task, User } from "../../types";
 import { Spinner } from "../../components/ui/spinner";
 import { adminTimetableApi, ApiClientError } from "../../api";
+import { parseSection } from "../../lib/section";
+
+function formatPhoneForDisplay(phone: string): string {
+  const digits = (phone || "").replace(/\D/g, "");
+  if (digits.startsWith("92") && digits.length >= 12) {
+    return `+92 ${digits.slice(2, 5)} ${digits.slice(5, 8)} ${digits.slice(8)}`;
+  }
+  if (digits) return `+${digits}`;
+  return phone;
+}
 
 interface ProfileProps {
   user: User;
@@ -33,6 +43,9 @@ export function Profile({
   const pendingCount = tasks.filter((t) => t.status !== "completed").length;
   // Read the name saved during ProfileSetup from localStorage
   const displayName = localStorage.getItem("duemate_user_name") || "Student";
+  const sectionForMeta = currentSection || user.settings?.timetable_section || "";
+  const semester =
+    user.settings?.semester ?? parseSection(sectionForMeta).semester;
   const memberSince = new Date(user.created_at).toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
@@ -48,7 +61,7 @@ export function Profile({
       <header className="hidden md:flex bg-background-base w-full top-0 sticky z-50 items-center px-6 h-16">
         <div className="flex flex-col">
           <h1 className="text-[20px] font-bold text-primary">Profile</h1>
-          <p className="text-[12px] text-on-surface-variant/70 leading-none">My DueMate</p>
+          <p className="text-[12px] text-on-surface-variant/70 leading-none">Account</p>
         </div>
       </header>
 
@@ -84,7 +97,7 @@ export function Profile({
           <h3 className="text-[20px] font-bold text-on-surface px-1">Academic Overview</h3>
           <div className="grid grid-cols-3 gap-3">
             <div className="neumorphic-raised rounded-xl p-3 flex flex-col items-center justify-center space-y-1">
-              <span className="text-secondary font-bold text-lg">—</span>
+              <span className="text-secondary font-bold text-lg">{semester ?? ""}</span>
               <span className="text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">
                 Semester
               </span>
@@ -113,14 +126,14 @@ export function Profile({
               </div>
               <div>
                 <h4 className="text-[18px] font-bold text-on-surface">Timetable Settings</h4>
-                <p className="text-[12px] text-on-surface-variant">Manage your parsed schedule</p>
+                <p className="text-[12px] text-on-surface-variant">Manage your timetable</p>
               </div>
             </div>
           </div>
           <div className="space-y-3 mt-4">
             {/* Active section display */}
             <div className="flex justify-between items-center bg-highlight-soft px-4 py-3 rounded-xl">
-              <span className="text-on-surface-variant font-medium text-sm">Active Class</span>
+              <span className="text-on-surface-variant font-medium text-sm">Selected Section</span>
               {currentSection ? (
                 <span className="text-secondary font-bold text-sm flex items-center gap-1">
                   <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
@@ -137,7 +150,7 @@ export function Profile({
               className="w-full py-3 neumorphic-button-secondary rounded-xl font-bold transition-all active:scale-95 flex items-center justify-center gap-2 text-secondary"
             >
               <span className="material-symbols-outlined text-sm">edit</span>
-              {availableSections.length > 0 || hasOfficialSections || Boolean(user?.settings?.university_id) ? "Change Selected Class" : "Select Class"}
+              {availableSections.length > 0 || hasOfficialSections || Boolean(user?.settings?.university_id) ? "Change Section" : "Select Section"}
             </button>
 
             {/* Always allow full re-upload */}
@@ -146,7 +159,7 @@ export function Profile({
               className="w-full py-3 neumorphic-button-primary rounded-xl font-bold transition-all active:scale-95 flex items-center justify-center gap-2"
             >
               <span className="material-symbols-outlined text-sm">upload</span>
-              Upload New Timetable
+              Upload Timetable
             </button>
           </div>
         </section>
@@ -161,7 +174,7 @@ export function Profile({
             </div>
             <div className="flex justify-between items-center pb-2 border-b border-white/20">
               <span className="text-on-surface-variant font-medium">Phone Number</span>
-              <span className="text-on-surface font-semibold text-sm">{user.phone_number}</span>
+              <span className="text-on-surface font-semibold text-sm">{formatPhoneForDisplay(user.phone_number)}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-on-surface-variant font-medium">Member Since</span>
@@ -176,13 +189,14 @@ export function Profile({
               <div>
                 <h3 className="text-[18px] font-bold text-on-surface">Admin Mode</h3>
                 <p className="text-[12px] text-on-surface-variant mt-1">
-                  Unlock Timetable Management. Backend admin login is still required.
+                  Manage official timetables and published versions.
                 </p>
               </div>
               <button
                 type="button"
                 role="switch"
                 aria-checked={adminMode}
+                aria-label={adminMode ? "ON" : "OFF"}
                 disabled={adminBusy}
                 onClick={() => {
                   if (adminMode) {
@@ -209,7 +223,6 @@ export function Profile({
                     adminMode ? "translate-x-6" : "translate-x-0"
                   }`}
                 />
-                <span className="sr-only">{adminMode ? "On" : "Off"}</span>
               </button>
             </div>
             <p className="text-[12px] font-bold uppercase tracking-wider text-on-surface-variant">

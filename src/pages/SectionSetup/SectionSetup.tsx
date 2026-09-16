@@ -172,12 +172,12 @@ export function SectionSetup({
             </span>
           </div>
           <h2 className="text-[28px] leading-[1.2] font-bold text-primary mb-2">
-            {isChange ? "Change your class" : "Pick your class"}
+            {isChange ? "Change your section" : "Choose your section"}
           </h2>
           <p className="text-[15px] leading-[1.5] text-on-surface-variant max-w-[300px]">
             {isChange
-              ? "Pick another official section. Your timetable updates immediately — no PDF needed."
-              : "Select your section and we'll load your official timetable automatically — no PDF needed."}
+              ? "Choose another section and we’ll load the latest published timetable automatically. No PDF upload needed."
+              : "Choose your section and we’ll load the latest published timetable automatically. No PDF upload needed."}
           </p>
         </section>
 
@@ -196,7 +196,7 @@ export function SectionSetup({
         {loading && (
           <div className="w-full mt-10 flex flex-col items-center gap-3">
             <Spinner size="md" color="blue" />
-            <span className="text-[13px] text-on-surface-variant">Loading available classes…</span>
+            <span className="text-[13px] text-on-surface-variant">Loading available sections…</span>
           </div>
         )}
 
@@ -212,7 +212,7 @@ export function SectionSetup({
               className="neumorphic-button-primary w-full h-14 mt-6 rounded-xl text-white font-bold text-[17px] flex items-center justify-center gap-2"
             >
               <span className="material-symbols-outlined">upload_file</span>
-              Upload timetable PDF instead
+              Upload your timetable instead
             </button>
           </section>
         )}
@@ -253,7 +253,7 @@ export function SectionSetup({
                   aria-haspopup="listbox"
                 >
                   <span className={`text-[16px] ${selected ? "text-secondary font-bold" : "text-on-surface-variant"}`}>
-                    {selected ?? "Search or select section…"}
+                    {selected ?? "Search or select your section…"}
                   </span>
                   <span
                     className="material-symbols-outlined text-on-surface-variant transition-transform duration-300"
@@ -268,7 +268,7 @@ export function SectionSetup({
                     <div className="p-3 border-b border-white/20">
                       <input
                         className="w-full bg-transparent text-[14px] text-on-surface placeholder:text-outline/60 focus:outline-none"
-                        placeholder="Type to filter… (e.g. BSCS-7B)"
+                        placeholder="Type to filter…"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         onClick={(e) => e.stopPropagation()}
@@ -347,7 +347,7 @@ export function SectionSetup({
                 disabled={saving}
                 className="w-full py-2 text-secondary text-[13px] font-semibold hover:underline text-center disabled:opacity-50"
               >
-                My section isn't listed — upload a PDF instead
+                My section isn’t listed? Upload your timetable instead.
               </button>
               )}
             </section>

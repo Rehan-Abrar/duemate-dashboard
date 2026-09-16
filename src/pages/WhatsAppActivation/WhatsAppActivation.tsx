@@ -55,12 +55,12 @@ export function WhatsAppActivation({
               chat_bubble
             </span>
             <span className="text-[12px] font-semibold text-text-secondary uppercase tracking-widest">
-              WhatsApp Activation
+              Connect WhatsApp
             </span>
           </div>
-          <h1 className="text-3xl font-bold text-deep-navy mb-2">Activate Your Account</h1>
+          <h1 className="text-3xl font-bold text-deep-navy mb-2">Connect DueMate to WhatsApp</h1>
           <p className="text-base text-text-secondary leading-relaxed px-4">
-            First, message our WhatsApp bot to connect your account and start receiving smart academic reminders.
+            Message DueMate on WhatsApp to connect your account and receive deadline reminders where you already chat.
           </p>
         </div>
 
@@ -77,7 +77,7 @@ export function WhatsAppActivation({
                     Message DueMate on WhatsApp
                   </h2>
                   <p className="text-sm text-text-secondary">
-                    Send the word <span className="font-bold text-deep-navy">hello</span> to activate your account.
+                    Send “<span className="font-bold text-deep-navy">hello</span>” to start your DueMate account.
                   </p>
                 </div>
               </div>
@@ -114,7 +114,7 @@ export function WhatsAppActivation({
                   onClick={onNext}
                   className="neumorphic-button-secondary h-[56px] w-full rounded-xl flex items-center justify-center gap-2 text-deep-navy font-semibold hover:bg-slate-100"
                 >
-                  <span>I've messaged the bot</span>
+                  <span>I've messaged DueMate</span>
                   <span className="material-symbols-outlined text-sm">arrow_forward</span>
                 </button>
               </div>
@@ -129,7 +129,7 @@ export function WhatsAppActivation({
                 info
               </span>
               <p className="text-sm text-text-secondary leading-relaxed">
-                DueMate uses WhatsApp to send reminders, updates, and academic insights. Your privacy is our priority—we only send what matters to your studies.
+                Once your number is connected and verified, DueMate can send the academic reminders you’ve asked it to keep track of. You start the conversation — DueMate doesn’t message you out of the blue.
               </p>
             </div>
           </div>
@@ -142,14 +142,15 @@ export function WhatsAppActivation({
                 {/* Chat Header */}
                 <div className="bg-deep-navy text-white px-5 py-6 flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                    <img
-                      alt="Bot Avatar"
-                      className="w-6 h-6 object-contain"
-                      src="https://lh3.googleusercontent.com/aida/AP1WRLvbMejPu71LxcmoGoVKFx-KuuabxP3ZqgYCzVO-RzzfzDKS-bjKYHtl9vodmL-CeTlg2na7H7kYT0h8MzdW8x72dVdy6gQNLmH-8VHr0vZoQ1UJKfQzgztn13u3lyaM-_kuogfC9T-PPKAYSEpOkq6UeaJPXXLugGt2bdEaH8eOwDWPbOYCgRR4dV0re_HFaCne2aXjRN1kp9aPNbaNbG8syC1gWbA7CdcFH6YhJ-_fWXtdnYnNaMhtg0w"
-                    />
+                    <span
+                      className="material-symbols-outlined text-white text-[20px]"
+                      style={{ fontVariationSettings: "'FILL' 1" }}
+                    >
+                      chat_bubble
+                    </span>
                   </div>
                   <div>
-                    <div className="font-bold text-sm">DueMate AI</div>
+                    <div className="font-bold text-sm">DueMate</div>
                     <div className="text-[10px] text-green-400 flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
                       online
@@ -170,9 +171,9 @@ export function WhatsAppActivation({
                   {/* Bot Message */}
                   <div className="self-start max-w-[85%] flex items-end gap-2">
                     <div className="chat-bubble-bot px-4 py-3 text-sm leading-snug">
-                      Welcome to <span className="font-bold">DueMate</span>! 🎓 <br />
+                      Welcome to <span className="font-bold">DueMate</span>. <br />
                       <br />
-                      Your account has been activated. I'll now start syncing your syllabus and deadlines.
+                      You’re connected. Let’s verify your number, then set up your timetable.
                     </div>
                   </div>
                   {/* Typing Indicator */}
@@ -203,7 +204,7 @@ export function WhatsAppActivation({
       {/* Footer */}
       <footer className="w-full max-w-4xl px-6 py-10 mt-auto flex justify-center border-t border-deep-navy/5">
         <p className="text-text-secondary text-sm">
-          © 2026 DueMate. Built for students.
+          © 2026 DueMate · Built for university students
         </p>
       </footer>
     </div>

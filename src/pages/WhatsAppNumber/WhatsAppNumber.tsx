@@ -63,9 +63,9 @@ export function WhatsAppNumber({ onBack, onNext }: WhatsAppNumberProps) {
               <span className="material-symbols-outlined text-white text-[16px] font-bold">check</span>
             </div>
           </div>
-          <h2 className="text-3xl font-bold text-deep-navy text-center mb-4">Your Academic Companion</h2>
+          <h2 className="text-3xl font-bold text-deep-navy text-center mb-4">Your WhatsApp Deadline Assistant</h2>
           <p className="text-lg text-text-secondary text-center max-w-sm">
-            DueMate organizes your university life so you can focus on what matters.
+            DueMate keeps your academic deadlines organized and reminds you on WhatsApp.
           </p>
         </div>
 
@@ -98,9 +98,9 @@ export function WhatsAppNumber({ onBack, onNext }: WhatsAppNumberProps) {
             <div className="px-4 py-1.5 rounded-full bg-[#DCE8FF] text-electric-blue text-[10px] font-bold uppercase tracking-wider mb-2">
               WhatsApp Verification
             </div>
-            <h1 className="text-2xl font-bold text-deep-navy">Enter Your Number</h1>
+            <h1 className="text-2xl font-bold text-deep-navy">Verify Your WhatsApp Number</h1>
             <p className="text-sm text-text-secondary max-w-[280px]">
-              We'll send a verification code to your WhatsApp.
+              We’ll send a 6-digit verification code to this WhatsApp number.
             </p>
           </section>
 
@@ -163,7 +163,7 @@ export function WhatsAppNumber({ onBack, onNext }: WhatsAppNumberProps) {
               <span className="material-symbols-outlined text-electric-blue text-[20px]">lock</span>
             </div>
             <p className="text-xs text-text-secondary leading-relaxed">
-              Your number is only used to connect your DueMate WhatsApp assistant and send academic reminders.
+              Your number is used to connect your DueMate account to WhatsApp and send the reminders you’ve asked DueMate to track.
             </p>
           </section>
 

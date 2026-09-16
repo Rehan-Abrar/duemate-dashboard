@@ -5,7 +5,7 @@ import { SectionLabel, Shell } from "../components/ui";
 const faqs = [
   {
     q: "Is this only for Riphah?",
-    a: "Timetable import is currently built for Riphah University PDFs, so the week view works best there. Anyone can still paste quizzes and assignments from WhatsApp and get reminders.",
+    a: "The timetable system is currently built around Riphah University timetable formats and published sections. Students from other universities can still use WhatsApp deadline tracking where supported.",
   },
   {
     q: "Will you spam me?",

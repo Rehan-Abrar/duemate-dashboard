@@ -5,18 +5,18 @@ import { TimetableMock } from "../components/ProductMocks";
 const notes = [
   {
     icon: FileText,
-    title: "The official PDF",
-    body: "Built for Riphah timetable exports, columns and all.",
+    title: "Official timetable",
+    body: "Use the latest timetable published for your section.",
   },
   {
     icon: Layers,
     title: "One clean week",
-    body: "Times, subjects and rooms, split by day.",
+    body: "See classes, times, subjects, and rooms in one view.",
   },
   {
     icon: Repeat,
     title: "Changed section?",
-    body: "Upload the new PDF and the week is replaced.",
+    body: "Switch sections and your timetable updates automatically.",
   },
 ];
 
@@ -28,11 +28,12 @@ export default function TimetableSection() {
           <div className="lg:col-span-4">
             <SectionLabel index="03" label="Timetable" />
             <h2 className="mt-6 text-headline font-semibold text-ink">
-              Your week, from a Riphah timetable
+              Your timetable, without the PDF.
             </h2>
             <p className="mt-6 max-w-[40ch] text-lead text-muted">
-              Upload the official PDF. DueMate turns your timetable into a
-              simple view of your classes.
+              Choose your section to use the latest published timetable, or
+              upload your own when one isn’t available. DueMate turns it into a
+              simple weekly view of your classes, rooms, and times.
             </p>
 
             <ul className="mt-10 space-y-6">

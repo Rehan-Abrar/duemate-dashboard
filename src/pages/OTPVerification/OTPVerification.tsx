@@ -158,9 +158,9 @@ export function OTPVerification({ phoneNumber, onBack, onSuccess }: OTPVerificat
                 WhatsApp Verification
               </span>
             </div>
-            <h1 className="text-2xl font-bold text-deep-navy">Enter Code</h1>
+            <h1 className="text-2xl font-bold text-deep-navy">Enter Verification Code</h1>
             <p className="text-sm text-text-secondary px-4">
-              We sent a 6-digit code to your WhatsApp number: <br />
+              We sent a 6-digit verification code to your WhatsApp number: <br />
               <span className="font-bold text-deep-navy">{phoneNumber}</span>
             </p>
             <button
@@ -188,7 +188,7 @@ export function OTPVerification({ phoneNumber, onBack, onSuccess }: OTPVerificat
 
             <section className="mt-6 neumorphic-raised bg-[#F6F4F0] rounded-2xl p-4 sm:p-6">
               <p id="otp-label" className="sr-only">
-                Six-digit verification code
+                6-digit verification code
               </p>
               <div
                 className="flex justify-between items-center gap-1.5 sm:gap-2"
@@ -272,7 +272,7 @@ export function OTPVerification({ phoneNumber, onBack, onSuccess }: OTPVerificat
                 </span>
               </div>
               <p className="text-[12px] leading-relaxed text-text-secondary font-medium">
-                Your WhatsApp connection allows <span className="text-electric-blue font-bold">DueMate</span> to send assignment reminders, deadline alerts, and AI academic assistance.
+                Once verified, DueMate can send the academic deadline reminders you’ve asked it to track on WhatsApp.
               </p>
             </div>
           </section>

@@ -60,7 +60,7 @@ export function ProfileSetup({ onComplete, onSkip }: ProfileSetupProps) {
             Welcome to DueMate
           </h2>
           <p className="text-[16px] leading-[1.5] text-on-surface-variant max-w-[280px]">
-            Let's personalize your AI academic companion.
+            Let’s personalize your DueMate experience.
           </p>
         </section>
 
@@ -74,9 +74,9 @@ export function ProfileSetup({ onComplete, onSkip }: ProfileSetupProps) {
               waving_hand
             </span>
           </div>
-          <h3 className="text-[24px] leading-[1.3] font-bold text-primary mb-3">Hi there! 👋</h3>
+          <h3 className="text-[24px] leading-[1.3] font-bold text-primary mb-3">Hi there!</h3>
           <p className="text-[16px] leading-[1.5] text-on-surface-variant px-4">
-            I'm ready to help you manage your Riphah University semester. What should I call you?
+            Let’s get your account set up. What should we call you?
           </p>
         </section>
 
@@ -137,7 +137,7 @@ export function ProfileSetup({ onComplete, onSkip }: ProfileSetupProps) {
               lock
             </span>
             <p className="text-[14px] text-on-surface-variant">
-              Your information helps DueMate provide personalized reminders. We keep your data private and secure.
+              Your name helps personalize your DueMate experience and reminders.
             </p>
           </div>
         </section>

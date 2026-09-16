@@ -83,7 +83,7 @@ export function Calendar({ tasks: allTasks, loading, onAddTask, onUploadTimetabl
       <header className="flex bg-background-base shadow-[4px_4px_10px_rgba(163,177,198,0.6),-4px_-4px_10px_rgba(255,255,255,0.8)] w-full sticky top-16 md:top-0 items-center justify-between px-6 py-4 z-30">
         <div className="flex flex-col min-w-0">
           <h1 className="text-xl md:text-[24px] font-bold text-primary">Calendar</h1>
-          <p className="text-sm text-text-secondary hidden sm:block">Your semester timeline</p>
+          <p className="text-sm text-text-secondary hidden sm:block">Your academic deadlines</p>
         </div>
         <button
           type="button"
@@ -98,7 +98,7 @@ export function Calendar({ tasks: allTasks, loading, onAddTask, onUploadTimetabl
 
       <main className="px-6 pb-8 w-full max-w-5xl mx-auto">
         <section className="mt-6 mb-4 md:mb-8 md:hidden">
-          <p className="text-text-secondary text-sm">Your semester timeline</p>
+          <p className="text-text-secondary text-sm">Your academic deadlines</p>
         </section>
 
         <div className="md:grid md:grid-cols-12 md:gap-8 flex flex-col">
@@ -317,12 +317,12 @@ export function Calendar({ tasks: allTasks, loading, onAddTask, onUploadTimetabl
               <div className="flex-1">
                 <h3 className="text-[24px] font-bold text-primary mb-2">Import your timetable</h3>
                 <p className="text-[16px] text-on-surface-variant mb-6">
-                  Sync your entire university schedule in seconds. We support PDF, CSV, and direct portal imports.
+                  Add your timetable to keep your classes and deadlines in one place.
                 </p>
                 <button
                   type="button"
                   onClick={onUploadTimetable}
-                  className="w-full md:w-auto min-h-11 bg-primary text-white px-8 py-3 rounded-xl neumorphic-raised hover:bg-primary/90 transition-all active:scale-95 text-[12px] font-semibold uppercase tracking-wider"
+                  className="w-full md:w-auto min-h-11 bg-secondary text-white px-8 py-3 rounded-xl hover:bg-[#1D4ED8] transition-all active:scale-95 text-[12px] font-semibold uppercase tracking-wider"
                 >
                   Upload timetable
                 </button>

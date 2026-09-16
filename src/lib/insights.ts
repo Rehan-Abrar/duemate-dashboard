@@ -112,9 +112,9 @@ export function analyzeWorkload(tasks: Task[]): WorkloadAnalysis {
  */
 export function getDashboardGreeting(
   analysis: WorkloadAnalysis,
-  userName: string,
+  _userName: string,
 ): { title: string; body: string; mood: "relaxed" | "focused" | "urgent" | "intense" } {
-  const { level, pendingCount, overdueCount, dueTodayCount, completionRate } = analysis;
+  const { level, pendingCount, overdueCount, completionRate } = analysis;
 
   // ── Title ───────────────────────────────────────────────────────────
   let title: string;
@@ -122,82 +122,38 @@ export function getDashboardGreeting(
 
   if (level === "low") {
     if (completionRate >= 100) {
-      title = "All Done! 🎉";
+      title = "All done";
       mood = "relaxed";
     } else if (pendingCount === 0) {
-      title = "Nothing Due 🎉";
+      title = "Nothing due";
       mood = "relaxed";
     } else {
-      title = "Light Week Ahead ☀️";
+      title = "Light week ahead";
       mood = "relaxed";
     }
   } else if (level === "moderate") {
-    title = "Steady Pace 📋";
+    title = "Steady pace";
     mood = "focused";
   } else if (level === "high") {
     if (overdueCount > 0) {
-      title = "Catch-up Time ⚠️";
+      title = "Catch-up time";
       mood = "urgent";
     } else {
-      title = "Busy Week Ahead 🔔";
+      title = "Busy week ahead";
       mood = "urgent";
     }
   } else {
-    title = "Intense Schedule 🚨";
+    title = "Intense schedule";
     mood = "intense";
   }
 
   // ── Body ────────────────────────────────────────────────────────────
-  let body: string;
-
-  if (level === "low") {
-    if (pendingCount === 0 && overdueCount === 0) {
-      if (completionRate >= 100) {
-        body = `You've completed everything, ${userName}! Enjoy your free time — you've earned it. 🎉`;
-      } else {
-        body = `No upcoming deadlines. Your semester is looking clear, ${userName}. Great planning!`;
-      }
-    } else {
-      body = `Just ${pendingCount} ${pendingCount === 1 ? "task" : "tasks"} to keep an eye on. Your semester is under control.`;
-    }
-  } else if (level === "moderate") {
-    const parts: string[] = [];
-    parts.push(`You have ${pendingCount} pending ${pendingCount === 1 ? "task" : "tasks"}.`);
-    if (dueTodayCount > 0) {
-      parts.push(`${dueTodayCount} ${dueTodayCount === 1 ? "is" : "are"} due today.`);
-    }
-    if (overdueCount > 0) {
-      parts.push(`${overdueCount} ${overdueCount === 1 ? "task is" : "tasks are"} overdue.`);
-    }
-    if (dueTodayCount === 0 && overdueCount === 0) {
-      parts.push("I recommend starting your next assignment early to stay ahead.");
-    }
-    body = parts.join(" ");
-  } else if (level === "high") {
-    const parts: string[] = [];
-    parts.push(`You have ${pendingCount} pending ${pendingCount === 1 ? "task" : "tasks"}.`);
-    if (overdueCount > 0) {
-      parts.push(`${overdueCount} ${overdueCount === 1 ? "is" : "are"} overdue — prioritise those first.`);
-    }
-    if (dueTodayCount > 0) {
-      parts.push(`Don't forget the ${dueTodayCount} ${dueTodayCount === 1 ? "task" : "tasks"} due today!`);
-    }
-    parts.push("Try focusing on the most urgent items first.");
-    body = parts.join(" ");
-  } else {
-    const parts: string[] = [];
-    parts.push(`You have ${pendingCount} pending ${pendingCount === 1 ? "task" : "tasks"} — that's a lot on your plate.`);
-    if (overdueCount >= 5) {
-      parts.push(`With ${overdueCount} overdue, it's time to buckle down.`);
-    } else if (overdueCount > 0) {
-      parts.push(`Start with the ${overdueCount} overdue ${overdueCount === 1 ? "task" : "tasks"} first.`);
-    }
-    if (dueTodayCount > 0) {
-      parts.push(`The ${dueTodayCount} ${dueTodayCount === 1 ? "task" : "tasks"} due today need immediate attention.`);
-    }
-    parts.push("Let me know if you need help prioritising.");
-    body = parts.join(" ");
-  }
+  const body =
+    pendingCount === 0
+      ? "No tasks need your attention this week."
+      : pendingCount === 1
+        ? "1 task needs your attention this week."
+        : `${pendingCount} tasks need your attention this week.`;
 
   return { title, body, mood };
 }
@@ -234,58 +190,48 @@ export function getDueSoonLabel(analysis: WorkloadAnalysis): {
 }
 
 /**
- * Generate the AI insight card content for the Calendar page.
+ * Generate the insight card content for the Calendar page.
  */
 export function getCalendarInsight(analysis: WorkloadAnalysis): {
   headline: string;
   body: string;
 } {
-  const { level, pendingCount, nextDeadline, nextDeadlineTitle, dueTodayCount, dueThisWeekCount } = analysis;
+  const { pendingCount, nextDeadline, nextDeadlineTitle, dueTodayCount, dueThisWeekCount } = analysis;
 
-  let headline: string;
-  switch (level) {
-    case "low":
-      headline = "All Clear 🌟";
-      break;
-    case "moderate":
-      headline = "Steady Week 📋";
-      break;
-    case "high":
-      headline = "Busy Week Ahead 🔔";
-      break;
-    case "critical":
-      headline = "Heavy Load 🚨";
-      break;
-  }
+  const headline =
+    dueTodayCount === 0
+      ? "No deadlines today"
+      : dueTodayCount === 1
+        ? "1 deadline today"
+        : `${dueTodayCount} deadlines today`;
 
   const parts: string[] = [];
-  if (pendingCount === 0) {
-    parts.push("No pending tasks. Your schedule is completely clear!");
-  } else {
-    parts.push(
-      `You have ${pendingCount} pending ${pendingCount === 1 ? "task" : "tasks"}.`,
-    );
-    if (dueTodayCount > 1) {
-      parts.push(`That's ${dueTodayCount} due today — pace yourself.`);
-    } else if (dueTodayCount === 1) {
-      parts.push("One task due today — you've got this.");
-    }
-    if (dueThisWeekCount > 0 && dueTodayCount === 0) {
-      parts.push(`${dueThisWeekCount} ${dueThisWeekCount === 1 ? "task is" : "tasks are"} due this week.`);
-    }
-    if (nextDeadline && !dueTodayCount) {
-      const diffDays = Math.ceil((nextDeadline.getTime() - Date.now()) / 86400000);
-      if (diffDays > 0 && diffDays <= 14) {
-        parts.push(
-          `Your next deadline${nextDeadlineTitle ? ` (${nextDeadlineTitle})` : ""} is in ${diffDays} ${diffDays === 1 ? "day" : "days"}.`,
-        );
-      }
-    }
-    if (level === "high" || level === "critical") {
-      parts.push("I recommend starting your next assignment today.");
-    } else if (level === "moderate") {
-      parts.push("Try tackling tasks one at a time to stay on track.");
-    }
+  parts.push(
+    pendingCount === 0
+      ? "You have no pending tasks."
+      : `You have ${pendingCount} pending ${pendingCount === 1 ? "task" : "tasks"}.`,
+  );
+
+  if (dueThisWeekCount === 1) {
+    parts.push("1 task is due this week.");
+  } else if (dueThisWeekCount > 1) {
+    parts.push(`${dueThisWeekCount} tasks are due this week.`);
+  }
+
+  if (nextDeadline) {
+    const diffDays = Math.ceil((nextDeadline.getTime() - Date.now()) / 86400000);
+    const title = nextDeadlineTitle?.trim();
+    const when =
+      diffDays < 0
+        ? diffDays === -1
+          ? "overdue by 1 day"
+          : `overdue by ${Math.abs(diffDays)} days`
+        : diffDays === 0
+          ? "today"
+          : diffDays === 1
+            ? "in 1 day"
+            : `in ${diffDays} days`;
+    parts.push(title ? `Next deadline: ${title} ${when}.` : `Next deadline ${when}.`);
   }
 
   return { headline, body: parts.join(" ") };

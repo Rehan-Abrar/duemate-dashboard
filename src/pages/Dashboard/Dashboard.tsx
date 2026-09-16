@@ -86,8 +86,7 @@ export function Dashboard({ tasks, loading, onNavigate }: DashboardProps) {
       {/* TopAppBar (Desktop Only) */}
       <header className="hidden md:flex w-full top-0 sticky z-40 bg-background-base items-center justify-between px-6 py-4 shadow-[6px_6px_12px_#d1d9e6,-6px_-6px_12px_#ffffff]">
         <div className="flex items-center gap-3">
-          <h1 className="text-[20px] leading-[1.4] font-bold text-primary tracking-tight">              {getTimeGreeting(savedName)} 👋
-          </h1>
+          <h1 className="text-[20px] leading-[1.4] font-bold text-primary tracking-tight">{getTimeGreeting(savedName)}</h1>
         </div>
         <button
           type="button"
@@ -107,7 +106,7 @@ export function Dashboard({ tasks, loading, onNavigate }: DashboardProps) {
           <div className="flex flex-col">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Dashboard</span>
             <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mt-0.5">
-              Hi, {savedName} 👋
+              Hi, {savedName}
             </h1>
           </div>
           <button 
@@ -210,7 +209,7 @@ export function Dashboard({ tasks, loading, onNavigate }: DashboardProps) {
                   <p className="text-sm text-slate-500">
                     {slots.length === 0
                       ? "No timetable uploaded yet."
-                      : "No classes scheduled for today. Enjoy your day!"}
+                      : "No classes scheduled for today."}
                   </p>
                   {slots.length === 0 && (
                     <button

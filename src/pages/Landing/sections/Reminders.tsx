@@ -5,28 +5,28 @@ import { PhoneMock } from "../components/ProductMocks";
 const principles = [
   {
     icon: HandHeart,
-    title: "You message the bot first",
-    body: "The conversation starts with your hello — never ours.",
+    title: "You stay in control",
+    body: "You start the conversation, connect your number, and decide what DueMate tracks.",
   },
   {
     icon: Ban,
-    title: "No unsolicited messages",
-    body: "Nothing arrives before you verify your number.",
+    title: "No marketing messages",
+    body: "DueMate’s reminders are tied to the academic deadlines you add.",
   },
   {
     icon: BellRing,
-    title: "Reminders only",
-    body: "Deadline nudges. No marketing, no chatter.",
+    title: "Academic reminders",
+    body: "Only the reminders you’ve asked DueMate to keep track of.",
   },
   {
     icon: PenOff,
-    title: "DueMate does not write assignments",
-    body: "It keeps track of them. The work stays yours.",
+    title: "Your work stays yours",
+    body: "DueMate tracks deadlines. It doesn’t write assignments or complete academic work for you.",
   },
   {
     icon: FileCheck2,
-    title: "Built for Riphah PDFs",
-    body: "Timetable import currently supports Riphah University exports.",
+    title: "Built for Riphah",
+    body: "Timetable support is currently built around Riphah University formats.",
   },
 ];
 
@@ -45,9 +45,9 @@ export default function Reminders() {
               Reminders land where you already are.
             </h2>
             <p className="mt-6 max-w-[52ch] text-lead text-onink-muted">
-              After you verify, DueMate can send deadline alerts to your WhatsApp
-              number. You start the conversation with hello. We do not message
-              you first.
+              Once you’ve connected and verified your number, DueMate sends
+              deadline reminders to WhatsApp. You start the conversation —
+              DueMate doesn’t message you out of the blue.
             </p>
 
             <div className="mt-12">

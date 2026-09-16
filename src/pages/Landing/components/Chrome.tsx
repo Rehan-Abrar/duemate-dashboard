@@ -66,7 +66,7 @@ export function Footer() {
               DueMate
             </span>
             <span className="ml-1 text-sm text-faint">
-              Deadline reminders for university students
+              A WhatsApp deadline assistant for university students
             </span>
           </div>
           <div className="flex items-center gap-5">
@@ -77,7 +77,7 @@ export function Footer() {
               FAQ
             </a>
             <span className="font-mono text-eyebrow uppercase text-faint">
-              Riphah · BSCS
+              Riphah
             </span>
           </div>
         </div>

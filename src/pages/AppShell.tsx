@@ -461,6 +461,7 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
         <PersonalTimetable
           key={timetableSection ?? "none"}
           section={timetableSection}
+          isOfficialTimetable={Boolean(user?.settings?.university_id)}
           onUploadNew={() => setModalView("upload-timetable")}
           onAskAI={() => goToTab("assistant")}
         />

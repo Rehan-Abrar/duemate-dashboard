@@ -5,6 +5,8 @@ import { RoundSpinner } from "../../components/ui/spinner";
 
 interface PersonalTimetableProps {
   section?: string | null;
+  /** True when the user is associated with a published official university timetable. */
+  isOfficialTimetable?: boolean;
   onUploadNew: () => void;
   onAskAI: () => void;
 }
@@ -195,6 +197,16 @@ function formatTime12(t: string): string {
   return `${h12}:${m.toString().padStart(2, "0")} ${ampm}`;
 }
 
+function classWord(count: number): string {
+  return count === 1 ? "class" : "classes";
+}
+
+function countSlotsForDay(allSlots: TimetableSlot[], dayAbbr: string): number {
+  return allSlots.filter((s) =>
+    DAY_MAP[dayAbbr]?.some((d) => s.day?.toLowerCase() === d.toLowerCase())
+  ).length;
+}
+
 function programName(section: string): string {
   if (section.startsWith("BSCS")) return "BS Computer Science";
   if (section.startsWith("BSSE")) return "BS Software Engineering";
@@ -218,7 +230,7 @@ function triggerBlobDownload(blob: Blob, filename: string) {
   URL.revokeObjectURL(url);
 }
 
-export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTimetableProps) {
+export function PersonalTimetable({ section, isOfficialTimetable = false, onUploadNew, onAskAI }: PersonalTimetableProps) {
   // Default to today's weekday in PKT
   const pktDayIdx = JS_DAY_TO_IDX[new Date().getDay()] ?? 0;
   const [selectedDay, setSelectedDay] = useState(DAYS[pktDayIdx]);
@@ -320,12 +332,15 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
     year: "numeric",
   });
 
-  // Semester insight
-  const maxDayCount = DAYS.map((d) =>
-    slots.filter((s) => DAY_MAP[d]?.includes(s.day ?? "")).length
+  const selectedDayCount = selectedDaySlots.length;
+  const sameCountDay = DAYS.find(
+    (d) => d !== selectedDay && countSlotsForDay(slots, d) === selectedDayCount && selectedDayCount > 0
   );
-  const busiestDayIndex = maxDayCount.indexOf(Math.max(...maxDayCount));
-  const busiestDay = DAYS[busiestDayIndex];
+  const otherDayWithClasses = DAYS.find(
+    (d) => d !== selectedDay && countSlotsForDay(slots, d) > 0
+  );
+  const comparisonDay = sameCountDay ?? otherDayWithClasses;
+  const comparisonCount = comparisonDay ? countSlotsForDay(slots, comparisonDay) : 0;
 
   // Check if today is selected
   const isToday = selectedDay === DAYS[JS_DAY_TO_IDX[new Date().getDay()] ?? 0];
@@ -346,7 +361,7 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
           </div>
           <h2 className="text-[24px] font-bold text-primary mb-2">No timetable uploaded yet.</h2>
           <p className="text-[14px] text-on-surface-variant mb-8 max-w-sm">
-            Upload your university timetable to track your classes and get AI insights.
+            Upload your university timetable to track your classes.
           </p>
           <button onClick={onUploadNew} className="neumorphic-button-primary px-8 h-14 rounded-xl font-bold text-[16px] text-white">
             Upload Timetable
@@ -376,7 +391,9 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
               </div>
               <div className="flex items-center gap-1 px-3 py-1 bg-success/10 rounded-full">
                 <span className="material-symbols-outlined text-[16px] text-success">check_circle</span>
-                <span className="text-success font-semibold text-[10px]">Timetable Synced</span>
+                <span className="text-success font-semibold text-[10px]">
+                  {isOfficialTimetable ? "Official Timetable" : "Uploaded Timetable"}
+                </span>
               </div>
             </div>
             {/* Fix #2: shows date for the SELECTED day, not always today */}
@@ -397,7 +414,7 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
                   upcomingInfo.isLive ? "text-success" : "text-secondary"
                 }`}
               >
-                Next Class - {DAY_FULL[upcomingInfo.slotDay]}
+                Next Class
               </p>
               <h3 className="text-[18px] font-bold text-primary mb-2">{upcomingInfo.slot.course}</h3>
               <div className="grid grid-cols-2 gap-y-1">
@@ -446,7 +463,7 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
           {!loading && !error && isToday && noMoreClassesToday && (
             <section className="neumorphic-raised rounded-[20px] p-5 text-center text-on-surface-variant text-[14px]">
               <span className="material-symbols-outlined text-3xl mb-2 block text-outline">done_all</span>
-              No more classes today. You're done!
+              No more classes today.
             </section>
           )}
 
@@ -454,7 +471,7 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
           <section className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-[20px] font-bold text-primary">{DAY_FULL[selectedDay]}'s Classes</h2>
-              <span className="text-[14px] text-outline">{selectedDaySlots.length} classes</span>
+              <span className="text-[14px] text-outline">{selectedDaySlots.length} {classWord(selectedDaySlots.length)}</span>
             </div>
 
             {loading && (
@@ -475,7 +492,7 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
 
             {!loading && !error && selectedDaySlots.length === 0 && (
               <div className="neumorphic-raised rounded-[20px] p-6 text-center text-on-surface-variant text-[14px]">
-                No classes on {DAY_FULL[selectedDay]}. Enjoy your day!
+                No classes on {DAY_FULL[selectedDay]}.
               </div>
             )}
 
@@ -564,18 +581,23 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
               <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
                 <span className="material-symbols-outlined text-white text-[18px]">smart_toy</span>
               </div>
-              <h3 className="text-[20px] font-bold text-secondary">Semester Insight</h3>
+              <h3 className="text-[20px] font-bold text-secondary">Schedule Summary</h3>
             </div>
             <p className="text-[16px] text-on-surface-variant leading-relaxed">
               {error || slots.length === 0 ? (
-                "Upload your timetable to get AI-powered insights about your schedule."
+                "Add a timetable to see your weekly class summary."
               ) : (
                 <>
-                  You have <strong className="text-secondary">{selectedDaySlots.length} classes</strong> on {DAY_FULL[selectedDay]}.{" "}
-                  {busiestDay && (
+                  {selectedDayCount === 0
+                    ? <>You have no classes on {DAY_FULL[selectedDay]}.</>
+                    : <>You have <strong className="text-secondary">{selectedDayCount} {classWord(selectedDayCount)}</strong> on {DAY_FULL[selectedDay]}.</>
+                  }
+                  {comparisonDay && (
                     <>
-                      {DAY_FULL[busiestDay]} is your busiest day with{" "}
-                      <strong className="text-secondary">{maxDayCount[busiestDayIndex]} lectures</strong>.
+                      {" "}
+                      {DAY_FULL[comparisonDay]}
+                      {sameCountDay ? " also has " : " has "}
+                      <strong className="text-secondary">{comparisonCount} {classWord(comparisonCount)}</strong>.
                     </>
                   )}
                 </>
@@ -588,8 +610,8 @@ export function PersonalTimetable({ section, onUploadNew, onAskAI }: PersonalTim
             <h2 className="text-[20px] font-bold text-primary">Quick Actions</h2>
             <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
               {[
-                { icon: "upload_file", label: "Upload New", action: onUploadNew, busy: false, busyLabel: "" },
-                { icon: "psychology", label: "Ask AI", action: onAskAI, busy: false, busyLabel: "" },
+                { icon: "upload_file", label: "Upload Timetable", action: onUploadNew, busy: false, busyLabel: "" },
+                { icon: "psychology", label: "Ask Assistant", action: onAskAI, busy: false, busyLabel: "" },
                 { icon: "share", label: "Share Schedule", action: handleShareSchedule, busy: sharing, busyLabel: "Generating..." },
                 { icon: "download", label: "Download Schedule", action: handleDownloadSchedule, busy: downloading, busyLabel: "Generating..." },
               ].map((action) => (

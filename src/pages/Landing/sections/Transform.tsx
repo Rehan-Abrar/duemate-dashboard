@@ -48,11 +48,16 @@ export default function Transform() {
   return (
     <section className="border-t border-line bg-paper py-20 md:py-28">
       <Shell>
-        <div className="max-w-[30ch]">
+        <div>
           <SectionLabel index="04" label="WhatsApp → Deadline" />
-          <h2 className="mt-6 text-headline font-semibold text-ink">
-            Paste a deadline. Track it once.
+          <h2 className="mt-6 max-w-[30ch] text-headline font-semibold text-ink">
+            Turn a WhatsApp message into a deadline.
           </h2>
+          <p className="mt-6 max-w-[52ch] text-lead text-muted">
+            Paste a quiz, assignment, or submission message from your group.
+            DueMate extracts the useful details and lets you confirm them before
+            saving.
+          </p>
         </div>
 
         <div className="mt-14 grid grid-cols-1 items-center gap-8 lg:grid-cols-12 lg:gap-6">
@@ -123,7 +128,7 @@ export default function Transform() {
               ))}
             </ul>
             <p className="pt-3">
-              <Eyebrow>One tap to confirm. Nothing else to fill in.</Eyebrow>
+              <Eyebrow>Review it once. Then it’s tracked.</Eyebrow>
             </p>
           </div>
 

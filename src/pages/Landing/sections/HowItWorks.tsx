@@ -23,12 +23,11 @@ export default function HowItWorks() {
           <div>
             <SectionLabel index="02" label="How it works" />
             <h2 className="mt-6 max-w-[22ch] text-headline font-semibold text-ink">
-              Three messages and you are set up.
+            Three steps. Then you’re set.
             </h2>
           </div>
           <p className="max-w-[34ch] text-sm text-muted md:text-right">
-            The whole setup happens inside a chat you already have open. No app
-            to install.
+          Connect WhatsApp, add your timetable, and start keeping deadlines in one place — without installing another app.
           </p>
         </div>
 
@@ -37,11 +36,10 @@ export default function HowItWorks() {
             <div className="border-line py-8 md:border-r md:pr-8">
               <StepMark n="01" />
               <h3 className="mt-6 text-title font-semibold text-ink">
-                Message the bot
+                Message DueMate
               </h3>
               <p className="mt-3 max-w-[32ch] text-sm text-muted">
-                Send hello to DueMate on WhatsApp. You start the conversation —
-                always.
+                Send “hello” to DueMate on WhatsApp to start.
               </p>
               <div className="mt-7 flex justify-end">
                 <div className="w-fit rounded-xl rounded-br-sm bg-wa-wash px-3.5 py-2 shadow-hair">
@@ -63,7 +61,7 @@ export default function HowItWorks() {
                 Verify your number
               </h3>
               <p className="mt-3 max-w-[32ch] text-sm text-muted">
-                Enter your number and the 6-digit code sent in the chat.
+                Confirm your number with the 6-digit code sent in the chat.
               </p>
               <div className="mt-7 flex gap-1.5">
                 {["4", "9", "2", "1", "0", "7"].map((d, i) => (
@@ -88,10 +86,10 @@ export default function HowItWorks() {
             <div className="border-t border-line py-8 md:border-t-0 md:pl-8">
               <StepMark n="03" />
               <h3 className="mt-6 text-title font-semibold text-ink">
-                Add your semester
+                Add your timetable
               </h3>
               <p className="mt-3 max-w-[32ch] text-sm text-muted">
-                Upload a Riphah timetable PDF or paste a deadline from WhatsApp.
+                Choose your section or upload your Riphah timetable. Then send deadlines from WhatsApp as they come.
               </p>
               <div className="mt-7 flex items-center gap-3 rounded-xl border border-line bg-paper-raise px-3.5 py-3 shadow-hair">
                 <span className="flex h-9 w-9 items-center justify-center rounded-md bg-accent-wash">
