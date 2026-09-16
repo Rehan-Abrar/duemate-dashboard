@@ -32,6 +32,12 @@ import type {
   AdminTimetableUploadResponse,
   AdminTimetableReviewResponse,
   AdminTimetableVersion,
+  AdminInboxSummary,
+  AdminInboxContactsResponse,
+  AdminInboxMessagesResponse,
+  AdminUsersSummary,
+  AdminUsersResponse,
+  AdminUserDetail,
 } from "./types";
 import { getAuthTokens, setAuthTokens, clearAuth, getAdminToken, setAdminSession } from "./auth";
 
@@ -81,6 +87,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   already_published: "This timetable version is already published.",
   parse_invalid: "This version has no detected sections and cannot be published.",
   missing_fields: "University and academic term are required.",
+  database_unavailable: "The database is temporarily unavailable. Try again shortly.",
+  not_found: "That record could not be found.",
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -165,10 +173,13 @@ async function handleResponse<T>(response: Response): Promise<T> {
     try {
       errorData = await response.json();
     } catch {
-      throw new ApiClientError(
-        "network_error",
-        ERROR_MESSAGES.network_error
-      );
+      const statusHint =
+        response.status === 404
+          ? "This admin API is not available on the server yet."
+          : response.status >= 500
+            ? "The server had a problem handling this request."
+            : `Request failed (${response.status}).`;
+      throw new ApiClientError(`http_${response.status}`, statusHint);
     }
     
     const friendlyMessage = 
@@ -699,6 +710,84 @@ export const adminTimetableApi = {
   },
 };
 
+export const adminUsersApi = {
+  async summary(): Promise<AdminUsersSummary> {
+    return adminRequest("/api/admin/users/summary");
+  },
+
+  async list(params: {
+    q?: string;
+    university?: string;
+    program?: string;
+    semester?: string;
+    section?: string;
+    timetable_source?: string;
+    sort?: string;
+    page?: number;
+    limit?: number;
+  } = {}): Promise<AdminUsersResponse> {
+    const qs = new URLSearchParams();
+    if (params.q) qs.set("q", params.q);
+    if (params.university) qs.set("university", params.university);
+    if (params.program) qs.set("program", params.program);
+    if (params.semester) qs.set("semester", params.semester);
+    if (params.section) qs.set("section", params.section);
+    if (params.timetable_source) qs.set("timetable_source", params.timetable_source);
+    if (params.sort) qs.set("sort", params.sort);
+    if (params.page) qs.set("page", String(params.page));
+    if (params.limit) qs.set("limit", String(params.limit));
+    const suffix = qs.toString() ? `?${qs.toString()}` : "";
+    return adminRequest(`/api/admin/users${suffix}`);
+  },
+
+  async detail(userId: string): Promise<AdminUserDetail> {
+    return adminRequest(`/api/admin/users/${encodeURIComponent(userId)}`);
+  },
+};
+
+export const adminInboxApi = {
+  async summary(): Promise<AdminInboxSummary> {
+    return adminRequest("/api/admin/inbox/summary");
+  },
+
+  async contacts(params: {
+    q?: string;
+    page?: number;
+    limit?: number;
+  } = {}): Promise<AdminInboxContactsResponse> {
+    const qs = new URLSearchParams();
+    if (params.q) qs.set("q", params.q);
+    if (params.page) qs.set("page", String(params.page));
+    if (params.limit) qs.set("limit", String(params.limit));
+    const suffix = qs.toString() ? `?${qs.toString()}` : "";
+    return adminRequest(`/api/admin/inbox/contacts${suffix}`);
+  },
+
+  async messages(
+    waId: string,
+    params: {
+      q?: string;
+      since?: string;
+      until?: string;
+      sort?: "newest" | "oldest";
+      page?: number;
+      limit?: number;
+    } = {}
+  ): Promise<AdminInboxMessagesResponse> {
+    const qs = new URLSearchParams();
+    if (params.q) qs.set("q", params.q);
+    if (params.since) qs.set("since", params.since);
+    if (params.until) qs.set("until", params.until);
+    if (params.sort) qs.set("sort", params.sort);
+    if (params.page) qs.set("page", String(params.page));
+    if (params.limit) qs.set("limit", String(params.limit));
+    const suffix = qs.toString() ? `?${qs.toString()}` : "";
+    return adminRequest(
+      `/api/admin/inbox/contacts/${encodeURIComponent(waId)}/messages${suffix}`
+    );
+  },
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // DEFAULT EXPORT
 // ─────────────────────────────────────────────────────────────────────────────
@@ -711,4 +800,6 @@ export default {
   timetable: timetableApi,
   assistant: assistantApi,
   adminTimetable: adminTimetableApi,
+  adminInbox: adminInboxApi,
+  adminUsers: adminUsersApi,
 };

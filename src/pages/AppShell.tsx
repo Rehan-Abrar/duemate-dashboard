@@ -11,6 +11,8 @@ import { tasksApi, timetableApi } from "../api";
 import type { User, Task } from "../types";
 import { SectionSetup } from "./SectionSetup/SectionSetup";
 import { AdminTimetable } from "./Admin/AdminTimetable";
+import { AdminMessages } from "./Admin/AdminMessages";
+import { AdminUsers } from "./Admin/AdminUsers";
 import { canShowAdminModeUi, isAdminModeEnabled, clearAdminSession } from "../auth";
 
 interface AppShellProps {
@@ -19,7 +21,7 @@ interface AppShellProps {
   onUserUpdated?: (user: User) => void;
 }
 
-type Tab = "home" | "tasks" | "calendar" | "timetable" | "assistant" | "profile" | "admin-timetable";
+type Tab = "home" | "tasks" | "calendar" | "timetable" | "assistant" | "profile" | "admin-timetable" | "admin-users" | "admin-messages";
 type ModalView = null | "upload-timetable" | "change-class" | "change-official-class";
 
 export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
@@ -39,6 +41,7 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
   const [adminMode, setAdminMode] = useState(
     () => canShowAdminModeUi(user?.phone_number) && isAdminModeEnabled()
   );
+  const [inboxWaId, setInboxWaId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!showAdminToggle) {
@@ -144,7 +147,9 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
     if (!enabled) {
       clearAdminSession();
       setAdminMode(false);
-      if (activeTab === "admin-timetable") setActiveTab("profile");
+      if (activeTab === "admin-timetable" || activeTab === "admin-users" || activeTab === "admin-messages") {
+        setActiveTab("profile");
+      }
       return;
     }
     setAdminMode(true);
@@ -210,6 +215,21 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
                 label="Timetable Management"
                 isActive={activeTab === "admin-timetable" && !modalView}
                 onClick={() => goToTab("admin-timetable")}
+              />
+              <DesktopNavItem
+                icon="group"
+                label="Users"
+                isActive={activeTab === "admin-users" && !modalView}
+                onClick={() => goToTab("admin-users")}
+              />
+              <DesktopNavItem
+                icon="forum"
+                label="Messages & Contacts"
+                isActive={activeTab === "admin-messages" && !modalView}
+                onClick={() => {
+                  setInboxWaId(null);
+                  goToTab("admin-messages");
+                }}
               />
             </div>
           )}
@@ -325,6 +345,21 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
                 isActive={activeTab === "admin-timetable" && !modalView}
                 onClick={() => goToTab("admin-timetable")}
               />
+              <DesktopNavItem
+                icon="group"
+                label="Users"
+                isActive={activeTab === "admin-users" && !modalView}
+                onClick={() => goToTab("admin-users")}
+              />
+              <DesktopNavItem
+                icon="forum"
+                label="Messages & Contacts"
+                isActive={activeTab === "admin-messages" && !modalView}
+                onClick={() => {
+                  setInboxWaId(null);
+                  goToTab("admin-messages");
+                }}
+              />
             </div>
             )}
 
@@ -413,6 +448,17 @@ export function AppShell({ onLogout, user, onUserUpdated }: AppShellProps) {
       )}
       {!modalView && activeTab === "assistant" && <Assistant />}
       {!modalView && activeTab === "admin-timetable" && adminMode && <AdminTimetable />}
+      {!modalView && activeTab === "admin-users" && adminMode && (
+        <AdminUsers
+          onViewMessages={(waId) => {
+            setInboxWaId(waId);
+            goToTab("admin-messages");
+          }}
+        />
+      )}
+      {!modalView && activeTab === "admin-messages" && adminMode && (
+        <AdminMessages initialWaId={inboxWaId} />
+      )}
       {!modalView && activeTab === "profile" && (
         <Profile
           user={user}

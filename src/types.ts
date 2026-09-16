@@ -106,6 +106,123 @@ export interface AdminLoginResponse {
   };
 }
 
+export interface AdminInboxSummary {
+  total_contacts: number;
+  total_messages: number;
+  recent_contacts: number;
+  messages_today: number;
+  recent_days: number;
+}
+
+export interface AdminInboxContact {
+  wa_id: string;
+  profile_name: string | null;
+  last_seen: string | null;
+  updated_at: string | null;
+  message_count: number;
+  latest_text: string;
+  latest_at: string | null;
+}
+
+export interface AdminInboxContactsResponse {
+  items: AdminInboxContact[];
+  count: number;
+  page: number;
+  limit: number;
+  pages: number;
+}
+
+export interface AdminInboxMessage {
+  message_id: string;
+  from: string;
+  from_name: string | null;
+  to?: string | null;
+  text: string;
+  type: string;
+  timestamp: string | null;
+  received_at: string | null;
+  delivery_status?: string | null;
+}
+
+export interface AdminUsersSummary {
+  total_users: number;
+  active_users: number;
+  official_timetable: number;
+  self_uploaded_timetable: number;
+  no_timetable: number;
+  recent_days: number;
+}
+
+export type AdminTimetableSource = "official" | "self_upload" | "none";
+
+export interface AdminUserRow {
+  user_id: string;
+  phone_number: string | null;
+  wa_id: string | null;
+  profile_name: string | null;
+  university: string | null;
+  program: string | null;
+  semester: string | number | null;
+  section: string | null;
+  academic_term: string | null;
+  timetable_source: AdminTimetableSource;
+  last_seen: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  message_count: number;
+  task_count: number;
+}
+
+export interface AdminUsersResponse {
+  items: AdminUserRow[];
+  count: number;
+  page: number;
+  limit: number;
+  pages: number;
+  sort: string;
+}
+
+export interface AdminUserDetail extends AdminUserRow {
+  settings: Record<string, unknown>;
+  contact: {
+    wa_id: string | null;
+    profile_name: string | null;
+    last_seen: string | null;
+    linked: boolean;
+  };
+  timetable: {
+    source: string | null;
+    section: string | null;
+    academic_term: string | null;
+    version: number | null;
+    has_timetable: boolean;
+    status: string | null;
+  };
+  recent_tasks: Array<{
+    id: string;
+    title: string | null;
+    course: string | null;
+    due_date: string | null;
+    task_type: string | null;
+    status: string | null;
+  }>;
+}
+
+export interface AdminInboxMessagesResponse {
+  contact: {
+    wa_id: string;
+    profile_name: string | null;
+    last_seen: string | null;
+    updated_at: string | null;
+    message_count: number;
+  };
+  items: AdminInboxMessage[];
+  count: number;
+  page: number;
+  limit: number;
+  pages: number;
+}
+
 export interface PushSubscription {
   endpoint: string;
   keys: {
