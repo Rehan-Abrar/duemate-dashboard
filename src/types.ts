@@ -142,7 +142,16 @@ export interface AdminInboxMessage {
   timestamp: string | null;
   received_at: string | null;
   delivery_status?: string | null;
+  bot_response?: string | null;
+  intent?: string | null;
+  action?: string | null;
+  is_forwarded?: boolean;
+  forwarded_from?: string | null;
+  source_key?: string | null;
+  request_id?: string | null;
+  raw?: any;
 }
+
 
 export interface AdminUsersSummary {
   total_users: number;

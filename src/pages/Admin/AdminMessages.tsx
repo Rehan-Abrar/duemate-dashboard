@@ -112,6 +112,8 @@ export function AdminMessages({ initialWaId = null }: { initialWaId?: string | n
   const [until, setUntil] = useState("");
   const [sort, setSort] = useState<"newest" | "oldest">("newest");
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [activeDetailMessage, setActiveDetailMessage] = useState<AdminInboxMessage | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (initialWaId) {
@@ -241,7 +243,9 @@ export function AdminMessages({ initialWaId = null }: { initialWaId?: string | n
     setSelectedWaId(null);
     setMessages([]);
     setError(null);
+    setActiveDetailMessage(null);
   }
+
 
   const stats = [
     { label: "Contacts", value: summary?.total_contacts ?? "—" },
@@ -507,13 +511,67 @@ export function AdminMessages({ initialWaId = null }: { initialWaId?: string | n
                       </p>
                       <ol className="space-y-3">
                         {group.items.map((item) => (
-                          <li key={item.message_id} className="neumorphic-inset rounded-2xl px-4 py-3">
-                            <p className="text-[11px] font-semibold text-on-surface-variant mb-1">
-                              {formatMessageStamp(item.received_at || item.timestamp)}
-                            </p>
-                            <p className="text-[14px] text-on-surface whitespace-pre-wrap break-words">
-                              {item.text || "—"}
-                            </p>
+                          <li
+                            key={item.message_id}
+                            className="neumorphic-inset rounded-2xl px-4.5 py-3.5 cursor-pointer hover:bg-white/40 transition-colors group relative"
+                            onClick={() => setActiveDetailMessage(item)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                e.preventDefault();
+                                setActiveDetailMessage(item);
+                              }
+                            }}
+                            tabIndex={0}
+                            role="button"
+                          >
+                            <div className="flex items-center justify-between mb-1.5">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[11px] font-semibold text-on-surface-variant">
+                                  {formatMessageStamp(item.received_at || item.timestamp)}
+                                </span>
+                                {item.intent && (
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-600/10 text-blue-700 uppercase tracking-wider">
+                                    {item.intent}
+                                  </span>
+                                )}
+                                {item.delivery_status && (
+                                  <span className="text-[10px] font-medium text-on-surface-variant/70">
+                                    • {item.delivery_status}
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-[11px] font-semibold text-blue-600 flex items-center gap-0.5 opacity-80 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all">
+                                Details
+                                <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+                              </span>
+                            </div>
+
+                            <div className="space-y-2">
+                              <p className="text-[14px] text-on-surface whitespace-pre-wrap break-words font-medium">
+                                {item.text || "—"}
+                              </p>
+
+                              {item.bot_response ? (
+                                <div className="mt-2.5 pt-2 border-t border-black/5 flex items-start gap-2 bg-blue-50/60 dark:bg-blue-950/20 p-2.5 rounded-xl border border-blue-100/80">
+                                  <span className="material-symbols-outlined text-blue-600 text-[18px] shrink-0 mt-0.5">
+                                    smart_toy
+                                  </span>
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-[11px] font-bold text-blue-700 uppercase tracking-wider mb-0.5">
+                                      Bot Response
+                                    </p>
+                                    <p className="text-[13px] text-on-surface/90 whitespace-pre-wrap break-words line-clamp-3">
+                                      {item.bot_response}
+                                    </p>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="mt-1.5 text-[11px] text-on-surface-variant/60 italic flex items-center gap-1">
+                                  <span className="material-symbols-outlined text-[13px]">info</span>
+                                  Click to view message details
+                                </div>
+                              )}
+                            </div>
                           </li>
                         ))}
                       </ol>
@@ -529,9 +587,155 @@ export function AdminMessages({ initialWaId = null }: { initialWaId?: string | n
           </section>
         )}
       </main>
+
+      {/* Message & Bot Response Inspection Modal */}
+      {activeDetailMessage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => setActiveDetailMessage(null)}
+        >
+          <div
+            className="bg-[#F4F2EE] rounded-[24px] shadow-2xl w-full max-w-2xl overflow-hidden neumorphic-raised border border-white/60 my-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <header className="px-6 py-4 bg-white/60 border-b border-black/5 flex items-center justify-between">
+              <div>
+                <h3 className="text-[18px] font-bold text-primary flex items-center gap-2">
+                  <span className="material-symbols-outlined text-blue-600">forum</span>
+                  Message Inspection
+                </h3>
+                <p className="text-[12px] text-on-surface-variant">
+                  From {contactLabel(threadName)} ({formatWaNumber(selectedWaId || "")})
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveDetailMessage(null)}
+                className="h-9 w-9 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center text-on-surface-variant transition-colors"
+                aria-label="Close"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </header>
+
+            <div className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+              {/* Inbound User Message Card */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[12px] font-bold uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[16px] text-emerald-600">person</span>
+                    User Message (Inbound)
+                  </span>
+                  <span className="text-[12px] text-on-surface-variant">
+                    {formatFullWhen(activeDetailMessage.received_at || activeDetailMessage.timestamp)}
+                  </span>
+                </div>
+                <div className="neumorphic-inset rounded-2xl p-4 bg-[#EAE8E3]/80 border border-white/40">
+                  <p className="text-[14px] text-on-surface font-medium whitespace-pre-wrap break-words select-text leading-relaxed">
+                    {activeDetailMessage.text || "—"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Bot Response Card */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[12px] font-bold uppercase tracking-wider text-blue-700 flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[16px] text-blue-600">smart_toy</span>
+                    Bot Response (Outbound)
+                  </span>
+                  {activeDetailMessage.bot_response && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (activeDetailMessage.bot_response) {
+                          navigator.clipboard.writeText(activeDetailMessage.bot_response);
+                          setCopied(true);
+                          setTimeout(() => setCopied(false), 2000);
+                        }
+                      }}
+                      className="text-[12px] font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                    >
+                      <span className="material-symbols-outlined text-[14px]">
+                        {copied ? "check" : "content_copy"}
+                      </span>
+                      {copied ? "Copied!" : "Copy response"}
+                    </button>
+                  )}
+                </div>
+                <div className="rounded-2xl p-4 bg-blue-50/80 border border-blue-200/80 shadow-sm">
+                  {activeDetailMessage.bot_response ? (
+                    <p className="text-[14px] text-on-surface font-medium whitespace-pre-wrap break-words select-text leading-relaxed">
+                      {activeDetailMessage.bot_response}
+                    </p>
+                  ) : (
+                    <div className="text-[13px] text-on-surface-variant/70 italic py-2 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-amber-500 text-[18px]">warning</span>
+                      No bot response recorded for this message.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Relevant Metadata Grid */}
+              <div className="neumorphic-inset rounded-2xl p-4 space-y-3 bg-[#EAE8E3]/40">
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">
+                  Technical Details & Debugging
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-[12px]">
+                  <div>
+                    <p className="text-on-surface-variant/70 font-medium">Intent Classification</p>
+                    <p className="font-semibold text-primary">{activeDetailMessage.intent || "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-on-surface-variant/70 font-medium">Action</p>
+                    <p className="font-semibold text-primary">{activeDetailMessage.action || "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-on-surface-variant/70 font-medium">Delivery Status</p>
+                    <p className="font-semibold text-primary">{activeDetailMessage.delivery_status || "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-on-surface-variant/70 font-medium">Message Type</p>
+                    <p className="font-semibold text-primary">{activeDetailMessage.type || "text"}</p>
+                  </div>
+                  <div>
+                    <p className="text-on-surface-variant/70 font-medium">Channel Source</p>
+                    <p className="font-semibold text-primary">{activeDetailMessage.source_key || "whatsapp"}</p>
+                  </div>
+                  <div>
+                    <p className="text-on-surface-variant/70 font-medium">Forwarded</p>
+                    <p className="font-semibold text-primary">
+                      {activeDetailMessage.is_forwarded
+                        ? `Yes (${activeDetailMessage.forwarded_from || "unknown"})`
+                        : "No"}
+                    </p>
+                  </div>
+                </div>
+                {activeDetailMessage.message_id && (
+                  <div className="pt-2 border-t border-black/5 text-[11px] font-mono text-on-surface-variant/80 truncate">
+                    ID: {activeDetailMessage.message_id}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <footer className="px-6 py-3.5 bg-white/40 border-t border-black/5 flex items-center justify-end">
+              <button
+                type="button"
+                onClick={() => setActiveDetailMessage(null)}
+                className="h-10 px-5 rounded-xl text-[13px] font-bold bg-blue-600 text-white shadow hover:bg-blue-700 transition-colors"
+              >
+                Close
+              </button>
+            </footer>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
 
 function Pager({
   page,
